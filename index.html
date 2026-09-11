@@ -1874,13 +1874,14 @@ const SAVE_KEY='nightwave.save.v1';
 const BOOST_CAP=100, BOOST_DRAIN=5, BOOST_REGEN=7.5;   // 20.0s of boost, 13.3s to refill
 const COOLANT_STEP=0.0375, CHARGER_STEP=0.07;          // per level; shared by the maths and the labels
 const ENGINE_TOP_STEP=10, ENGINE_CRUISE_STEP=6;        // engine lifts both the ceiling and the floor
+const GEAR_ACCEL_STEP=7, GEAR_BRAKE_STEP=14;           // gearbox works both ways
 const UPGRADES=[
   {id:'engine',  icon:'⚙', name:'Engine Block',  base:150, mult:1.60, max:20,
    desc:l=>'+'+(l*ENGINE_TOP_STEP)+' top speed, +'+(l*ENGINE_CRUISE_STEP)+' off the gas'},
   {id:'turbo',   icon:'🔥', name:'Turbo Coils',   base:400, mult:1.70, max:20,
    desc:l=>'+'+(l*16)+' boost top speed'},
   {id:'gearbox', icon:'⇅', name:'Gearbox',       base:250, mult:1.65, max:15,
-   desc:l=>'+'+(l*7)+' acceleration'},
+   desc:l=>'+'+(l*GEAR_ACCEL_STEP)+' acceleration, +'+(l*GEAR_BRAKE_STEP)+' braking'},
   {id:'odometer',icon:'◈', name:'Odometer Chip', base:300, mult:1.80, max:25,
    desc:l=>'+'+(l*18)+'% credits per distance'},
   {id:'coolant', icon:'❄', name:'Coolant Loop',  base:700, mult:1.75, max:10,
@@ -2078,6 +2079,7 @@ function renderPhone(){
       ['Per distance',    '◈'+(EARN_PER_UNIT*earnMult()).toFixed(3)+' / u'],
       ['Top speed',       Math.round(boostTop()*1.6)+' km/h'],
       ['Cruise speed',    Math.round(cruiseTop()*1.6)+' km/h'],
+      ['Braking',         Math.round(brakeRate())+' /s'],
       ['Boost duration',  (BOOST_CAP/boostDrain()).toFixed(1)+' s'],
       ['Boost recharge',  (BOOST_CAP/boostRegen()).toFixed(1)+' s'],
       ['Vehicle',         VEHICLES[game.vehicle].name],
@@ -2161,7 +2163,8 @@ function buyAsset(a){
 const engineTop  = ()=> 215 + lvOf(UP_BY.engine)*ENGINE_TOP_STEP;
 const cruiseTop  = ()=> 95  + lvOf(UP_BY.engine)*ENGINE_CRUISE_STEP;   // coasting speed, no W held
 const boostTop   = ()=> 310 + lvOf(UP_BY.turbo)*16;
-const accelRate  = ()=> 55  + lvOf(UP_BY.gearbox)*7;
+const accelRate  = ()=> 55  + lvOf(UP_BY.gearbox)*GEAR_ACCEL_STEP;
+const brakeRate  = ()=> 130 + lvOf(UP_BY.gearbox)*GEAR_BRAKE_STEP;
 const earnMult   = ()=> 1 + lvOf(UP_BY.odometer)*0.18;
 const boostDrain = ()=> BOOST_DRAIN*(1 - lvOf(UP_BY.coolant)*COOLANT_STEP);
 const boostRegen = ()=> BOOST_REGEN*(1 + lvOf(UP_BY.charger)*CHARGER_STEP);
@@ -2377,7 +2380,8 @@ function loop(now){
 
   // --- speed (tops and acceleration scale with garage upgrades) ---
   const target= !started? 55 : brake? 25 : boost? boostTop() : accel? engineTop() : cruiseTop();
-  const rate = target>speed? (boost? accelRate()+40 : accel? accelRate() : 35) : 130;
+  const rate = target>speed ? (boost? accelRate()+40 : accel? accelRate() : 35)
+             : brake ? brakeRate() : 130;        // lifting off still coasts down at the old rate
   speed += Math.sign(target-speed)*Math.min(Math.abs(target-speed), rate*dt);
   boostVis += ((boost?1:0) - boostVis)*Math.min(1, dt*9);
   if(started) tickEconomy(dt, speed);
