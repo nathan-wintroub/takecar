@@ -169,8 +169,8 @@
     </div>
     <div class="pTabs">
       <button data-tab="garage" class="on">TUNE</button>
-      <button data-tab="rides">RIDES</button>
       <button data-tab="assets">ASSETS</button>
+      <button data-tab="rides">RIDES</button>
       <button data-tab="themes">STYLE</button>
       <button data-tab="stats">STATS</button>
     </div>
@@ -425,6 +425,7 @@ let starsMat;
   starsMat=new THREE.PointsMaterial({color:0xcfeaff,size:2.4,fog:false,transparent:true,opacity:.85});
   skyGroup.add(new THREE.Points(g, starsMat));
 })();
+
 
 /* ================================================================
    VEHICLES — swappable bodies, pure vanity. Every model is built from
@@ -937,11 +938,11 @@ function placeProp(p){
 }
 for(let i=0;i<34;i++){
   const side=Math.random()<.5?-1:1;
-  addProp(makePalm(), Math.random()*RANGE, side*(HALF+7+Math.random()*24));
+  addProp(makePalm(), Math.random()*RANGE, side*(HALF+7+Math.random()*14));
 }
 for(let i=0;i<9;i++){
   const side=Math.random()<.5?-1:1;
-  addProp(makePyramid(), Math.random()*RANGE, side*(70+Math.random()*110));
+  addProp(makePyramid(), Math.random()*RANGE, side*(150+Math.random()*110));
 }
 for(let i=0;i<3;i++){
   const p={mesh:makeGate(i), s:200+i*520, offset:0, baseScale:1};
@@ -1526,6 +1527,193 @@ function dropOff(prime){
   toast(prime? 'PRIME DROP  \u25C8'+fmtC(fare)+'  (x'+BONUS_MULT+')' : 'FARE PAID  \u25C8'+fmtC(fare));
 }
 
+const holdGlassMat=new THREE.MeshBasicMaterial({color:0x29f3ff, transparent:true, opacity:.55, fog:true});
+const holdDarkMat =new THREE.MeshLambertMaterial({color:0x14141f});
+/* ---------------- your holdings ----------------
+   Assets you own show up as real structures along the mountain highway.
+   They sit in the 38..76 corridor opened between the palms (<=35) and the
+   pyramids (>=90), on a fixed slot grid so they can never overlap each
+   other, and only in the mountain zone so they never touch the tunnel,
+   the city or the drop pads. */
+const HOLD_SLOTS=16, HOLD_SPACING=155, HOLD_LAT=66, HOLD_PER_TYPE=5;
+
+function buildBillboard(seed){
+  const g=new THREE.Group();
+  const A=(geo,mat,x,y,z,rx,ry,rz)=>{ const m=new THREE.Mesh(geo,mat);
+    m.position.set(x,y,z); if(rx)m.rotation.x=rx; if(ry)m.rotation.y=ry; if(rz)m.rotation.z=rz; g.add(m); return m; };
+  [-4.2,4.2].forEach(x=>{
+    A(new THREE.BoxGeometry(.7,11,.7), poleMat, x,5.5,0);
+    A(new THREE.BoxGeometry(.4,.4,2.6), poleMat, x,8.5,1.1, .7);          // stay
+  });
+  A(new THREE.BoxGeometry(10.5,.5,.5), poleMat, 0,10.6,0);
+  A(new THREE.BoxGeometry(11.4,6.2,.5), structMat, 0,13.6,0);
+  const face=new THREE.Mesh(new THREE.PlaneGeometry(10.4,5.3), signMats[seed%signMats.length]);
+  face.position.set(0,13.6,.33); g.add(face);
+  A(new THREE.BoxGeometry(11.8,.34,.34), cityCapMat, 0,16.95,.4);
+  A(new THREE.BoxGeometry(11.4,.26,.26), lampMat, 0,10.35,.55);
+  [-3.6,0,3.6].forEach(x=> A(new THREE.BoxGeometry(.5,.5,.7), lampMat, x,10.1,.8, .5));
+  return g;
+}
+function buildArcade(){
+  const g=new THREE.Group();
+  const A=(geo,mat,x,y,z,rx,ry,rz)=>{ const m=new THREE.Mesh(geo,mat);
+    m.position.set(x,y,z); if(rx)m.rotation.x=rx; if(ry)m.rotation.y=ry; if(rz)m.rotation.z=rz; g.add(m); return m; };
+  const t=new THREE.Mesh(towerGeo(21,8.5,15), cityMat); t.position.y=4.25; g.add(t);
+  A(new THREE.BoxGeometry(22,.7,16), structMat, 0,8.8,0);
+  A(new THREE.BoxGeometry(21.6,.35,.35), cityCapMat, 0,9.25,8.1);
+  A(new THREE.BoxGeometry(9,1.1,.35), cityCapMat, 0,1.6,7.7);            // entrance frame
+  A(new THREE.BoxGeometry(8.4,3.0,.3), holdGlassMat, 0,2.6,7.66);          // doors
+  A(new THREE.BoxGeometry(11,.4,3.4), structMat, 0,4.5,9.0);             // canopy
+  [-5.2,5.2].forEach(x=> A(new THREE.BoxGeometry(.35,4.3,.35), poleMat, x,2.3,10.4));
+  [[-1],[1]].forEach(([s])=>{
+    A(new THREE.BoxGeometry(.5,7,.5), cityCapMat, s*10.6,4.5,7.9);       // corner tubes
+    A(new THREE.BoxGeometry(.3,.3,15.4), s>0?cityCapMat:lampMat, s*10.6,8.4,0);
+  });
+  // rooftop sign
+  [-4.5,4.5].forEach(x=> A(new THREE.BoxGeometry(.4,4,.4), poleMat, x,11,2));
+  A(new THREE.BoxGeometry(11.6,4.6,.4), structMat, 0,13.6,2);
+  const face=new THREE.Mesh(new THREE.PlaneGeometry(10.6,3.8), signMats[1]);
+  face.position.set(0,13.6,2.26); g.add(face);
+  A(new THREE.BoxGeometry(12,.3,.3), cityCapMat, 0,16.2,2.3);
+  return g;
+}
+function buildData(){
+  const g=new THREE.Group();
+  const A=(geo,mat,x,y,z,rx,ry,rz)=>{ const m=new THREE.Mesh(geo,mat);
+    m.position.set(x,y,z); if(rx)m.rotation.x=rx; if(ry)m.rotation.y=ry; if(rz)m.rotation.z=rz; g.add(m); return m; };
+  A(new THREE.BoxGeometry(19,7,16), structMat, 0,3.5,0);                 // windowless bunker
+  A(new THREE.BoxGeometry(19.4,.6,16.4), holdDarkMat, 0,7.2,0);
+  A(new THREE.BoxGeometry(19.4,.26,.26), cityCapMat, 0,6.4,8.2);
+  for(let i=-3;i<=3;i++) A(new THREE.BoxGeometry(.22,.22,.22), lampMat, i*2.4,5.4,8.1);   // status LEDs
+  A(new THREE.BoxGeometry(6,3.2,.3), holdGlassMat, 0,2.2,8.15);            // lit doorway
+  // cooling towers
+  [[-6,-4],[0,-4],[6,-4],[-3,4],[3,4]].forEach(([x,z])=>{
+    A(new THREE.CylinderGeometry(1.5,1.8,4.4,12), holdDarkMat, x,9.6,z);
+    A(new THREE.TorusGeometry(1.5,.18,6,14), cityCapMat, x,11.7,z, -Math.PI/2);
+    A(new THREE.CylinderGeometry(1.2,1.2,.3,12), poleMat, x,11.95,z);
+  });
+  // perimeter fence
+  [[-1],[1]].forEach(([s])=>{
+    A(new THREE.BoxGeometry(.16,2.6,20), poleMat, s*11.5,1.3,0);
+    A(new THREE.BoxGeometry(.24,.24,20), s>0?cityCapMat:lampMat, s*11.5,2.7,0);
+  });
+  A(new THREE.BoxGeometry(23,2.6,.16), poleMat, 0,1.3,10);
+  A(new THREE.BoxGeometry(23,.24,.24), cityCapMat, 0,2.7,10);
+  return g;
+}
+function buildDrones(){
+  const g=new THREE.Group();
+  const A=(geo,mat,x,y,z,rx,ry,rz)=>{ const m=new THREE.Mesh(geo,mat);
+    m.position.set(x,y,z); if(rx)m.rotation.x=rx; if(ry)m.rotation.y=ry; if(rz)m.rotation.z=rz; g.add(m); return m; };
+  A(new THREE.CylinderGeometry(4.6,5.0,.7,14), structMat, 0,.35,0);      // launch pad
+  A(new THREE.TorusGeometry(4.2,.22,8,22), cityCapMat, 0,.75,0, -Math.PI/2);
+  A(new THREE.BoxGeometry(1.6,2.6,1.6), poleMat, 0,1.9,-3.4);            // control mast
+  A(new THREE.BoxGeometry(.9,.5,.3), lampMat, 0,3.4,-3.4);
+  const drones=[];
+  for(let i=0;i<6;i++){
+    const d=new THREE.Group();
+    const b=new THREE.Mesh(new THREE.BoxGeometry(1.5,.5,1.5), poleMat); d.add(b);
+    const led=new THREE.Mesh(new THREE.BoxGeometry(.9,.2,.9), cityCapMat); led.position.y=-.3; d.add(led);
+    [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([a,c])=>{
+      const arm=new THREE.Mesh(new THREE.BoxGeometry(.22,.14,.22), poleMat);
+      arm.position.set(a*1.0,0,c*1.0); d.add(arm);
+      const rot=new THREE.Mesh(new THREE.TorusGeometry(.55,.07,6,12), lampMat);
+      rot.rotation.x=-Math.PI/2; rot.position.set(a*1.0,.22,c*1.0); d.add(rot);
+    });
+    const a=(i/6)*Math.PI*2;
+    d.position.set(Math.cos(a)*7, 15+ (i%3)*4.5, Math.sin(a)*7);
+    g.add(d); drones.push({d, a, base:d.position.y});
+  }
+  g.userData.drones=drones;
+  return g;
+}
+function buildRelay(){
+  const g=new THREE.Group();
+  const A=(geo,mat,x,y,z,rx,ry,rz)=>{ const m=new THREE.Mesh(geo,mat);
+    m.position.set(x,y,z); if(rx)m.rotation.x=rx; if(ry)m.rotation.y=ry; if(rz)m.rotation.z=rz; g.add(m); return m; };
+  A(new THREE.BoxGeometry(9,1.2,9), structMat, 0,.6,0);                  // foundation
+  for(let d=0; d<6; d++){                                                // tapering lattice
+    const w=6.2-d*0.85, y=2.2+d*7;
+    [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([a,c])=>
+      A(new THREE.BoxGeometry(.42,7,.42), poleMat, a*w/2,y+1.6,c*w/2));
+    A(new THREE.BoxGeometry(w,.3,.3), poleMat, 0,y+5.1,-w/2);
+    A(new THREE.BoxGeometry(w,.3,.3), poleMat, 0,y+5.1, w/2);
+    A(new THREE.BoxGeometry(.3,.3,w), poleMat, -w/2,y+5.1,0);
+    A(new THREE.BoxGeometry(.3,.3,w), poleMat,  w/2,y+5.1,0);
+    if(d%2) A(new THREE.BoxGeometry(w,.24,.24), cityCapMat, 0,y+5.3,0);
+  }
+  const head=new THREE.Group(); head.position.y=45; g.add(head);
+  const dish=new THREE.Mesh(new THREE.CylinderGeometry(4.6,1.2,1.8,16), structMat);
+  dish.rotation.x=1.1; dish.position.z=1.2; head.add(dish);
+  const rim=new THREE.Mesh(new THREE.TorusGeometry(4.6,.2,8,20), cityCapMat);
+  rim.rotation.x=1.1+Math.PI/2; rim.position.z=2.0; head.add(rim);
+  const feed=new THREE.Mesh(new THREE.BoxGeometry(.3,.3,3.4), poleMat);
+  feed.rotation.x=1.1; feed.position.set(0,1.8,-.8); head.add(feed);
+  A(new THREE.BoxGeometry(.6,3,.6), poleMat, 0,49,0);
+  A(new THREE.BoxGeometry(1.1,1.1,1.1), lampMat, 0,51,0);                // beacon
+  g.userData.head=head;
+  return g;
+}
+
+/* null = this asset has no roadside structure; it is skipped in the mix
+   so its slots go to assets that do have one */
+const HOLD_BUILD=[buildBillboard, null, buildArcade, buildData, buildDrones, buildRelay];
+const holdPools=HOLD_BUILD.map(fn=>{
+  const pool=[];
+  if(!fn) return pool;
+  for(let i=0;i<HOLD_PER_TYPE;i++){
+    const g=fn(i); g.visible=false; scene.add(g); pool.push(g);
+  }
+  return pool;
+});
+
+/* which structure stands in each slot, in proportion to what you own */
+let holdMix=new Array(HOLD_SLOTS).fill(-1);
+function rebuildHoldings(){
+  const counts=ASSETS.map((a,i)=> HOLD_BUILD[i]? owned(a) : 0);   // skip assets with no structure
+  const total=counts.reduce((x,y)=>x+y,0);
+  holdMix=new Array(HOLD_SLOTS).fill(-1);
+  if(!total) return;
+  const shown=Math.min(HOLD_SLOTS, total);
+  // largest-remainder split so the mix matches your holdings exactly
+  const quota=counts.map(c=>c/total*shown);
+  const take=quota.map(q=>Math.floor(q));
+  let left=shown-take.reduce((x,y)=>x+y,0);
+  quota.map((q,i)=>[q-Math.floor(q),i]).sort((a,b)=>b[0]-a[0])
+       .slice(0,left).forEach(([,i])=>take[i]++);
+  // round-robin so types interleave along the road instead of clumping
+  const list=[], rem=take.slice();
+  let guard=0;
+  while(list.length<shown && guard++<200)
+    for(let i=0;i<rem.length;i++) if(rem[i]>0 && list.length<shown){ list.push(i); rem[i]--; }
+  for(let i=0;i<list.length;i++) holdMix[i]=list[i];
+}
+
+function updateHoldings(dist, viewFar, t){
+  for(const pool of holdPools) for(const g of pool) g.visible=false;
+  const [A,B]=zoneWindow(dist-100, Z_MTN);
+  const used=HOLD_BUILD.map(()=>0);
+  const k0=Math.ceil((dist-100-A)/HOLD_SPACING);
+  for(let i=0;i<HOLD_SLOTS;i++){
+    const k=k0+i, s=A+k*HOLD_SPACING;
+    const type=holdMix[((k%HOLD_SLOTS)+HOLD_SLOTS)%HOLD_SLOTS];
+    if(type<0) continue;
+    if(s<A+180 || s>B-180 || (s-dist)>viewFar || (dist-s)>100) continue;
+    const pool=holdPools[type];
+    if(used[type]>=pool.length) continue;
+    const g=pool[used[type]++];
+    const side=(k%2)?1:-1;
+    g.visible=true;
+    g.position.set(roadX(s)+side*(HOLD_LAT+(k%3)*7), 0, dist-s);
+    g.rotation.y=-(roadX(s+3)-roadX(s-3))/6 + (side>0? Math.PI : 0);
+    if(g.userData.drones) for(const dr of g.userData.drones){
+      dr.d.position.y=dr.base+Math.sin(t*1.3+dr.a*2)*1.6;
+      dr.d.rotation.y=t*0.7+dr.a;
+    }
+    if(g.userData.head) g.userData.head.rotation.y=Math.sin(t*0.18+k)*0.5;
+  }
+}
+
 /* ---- palms / pyramids / gates belong to the mountains: when a recycled
    prop would land outside that zone, park it in the next mountain stretch
    so the scenery simply stops at the tunnel mouth ---- */
@@ -1711,6 +1899,8 @@ function applyTheme(T){
   primeRingMat.color.set(T.accentA);
   primeBeamMat.color.set(T.accentA);
   structMat.color.set(T.struct);
+  holdGlassMat.color.set(T.accentB);
+  holdDarkMat.color.set(T.gridBase);
   lampMat.color.set(T.lamp);
   poleMat.color.set(T.carDark);
   signMats.forEach(m=> m.color.set(T.accentA));
@@ -1955,6 +2145,7 @@ load();
 renderPalettes();
 renderQueue();
 setVehicle(game.vehicle);            // restore the ride the save was using
+rebuildHoldings();                   // owned assets appear along the highway
 setInterval(save, 5000);
 addEventListener('beforeunload', save);
 
@@ -2156,6 +2347,7 @@ function buyAsset(a){
   const c=assetCost(a);
   if(game.credits<c) return;
   game.credits-=c; game.spent+=c; game.assets[a.id]=owned(a)+1;
+  rebuildHoldings();
   save(); renderPhone();
 }
 
@@ -2436,6 +2628,7 @@ function loop(now){
   updateCity(dist, scene.fog.far);
   updateCityFurniture(dist, scene.fog.far);
   updateRides(dist, scene.fog.far, t);
+  updateHoldings(dist, scene.fog.far, t);
   groundMat.color.setScalar(1 - 0.6*cd);     // neon void gives way to pavement
   scene.fog.color.copy(baseFogColor).lerp(BLACKC, tf*0.7);
   sunLight.intensity = SUN_BASE*(1 - 0.8*tf);
@@ -2452,7 +2645,7 @@ function loop(now){
       if(p.offset!==0){
         const side=Math.random()<.5?-1:1;
         const far=Math.abs(p.offset)>60;
-        p.offset = side*(far? 70+Math.random()*110 : HALF+7+Math.random()*24);
+        p.offset = side*(far? 150+Math.random()*110 : HALF+7+Math.random()*14);
       }
       placeProp(p);
       z = dist - p.s;
