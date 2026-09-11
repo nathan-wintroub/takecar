@@ -108,6 +108,9 @@
     cursor:pointer;border-radius:8px;border:1px solid var(--hud-b);color:var(--hud-b);background:rgba(255,255,255,.06);}
   .pCode button:hover{background:var(--hud-b);color:#0a0418;}
   .pRow.owned{border-left-color:var(--hud-b);}
+  .bRow{margin:-3px 0 9px 18px;border-left-color:var(--hud-b);background:rgba(255,255,255,.028);}
+  .bRow .pInfo b{font-size:10.5px;}
+  .bRow.locked{opacity:.42;}
   .pStat{display:flex;justify-content:space-between;padding:7px 2px;border-bottom:1px solid rgba(255,255,255,.07);}
   .pStat span:last-child{color:var(--hud-b);}
   #toast{position:fixed;left:50%;top:76px;transform:translateX(-50%);z-index:33;pointer-events:none;
@@ -216,7 +219,7 @@ const SUN_BASE = 0.9;
 
 /* persistent player state — declared up here because the vehicle, theme and
    economy systems all read it, and the vehicle rig is built first */
-const game={credits:0, up:{}, assets:{}, themes:{}, vehicles:{}, vehicle:0, totalDist:0, spent:0};
+const game={credits:0, up:{}, assets:{}, boosts:{}, themes:{}, vehicles:{}, vehicle:0, totalDist:0, spent:0};
 
 const camera = new THREE.PerspectiveCamera(70, innerWidth/innerHeight, .1, 3000);
 camera.position.set(0,7,10);
@@ -1900,7 +1903,14 @@ const lvOf  = u=> Math.min(upLv(u), u.max);   // effects never exceed the cap, w
 const owned = a=> game.assets[a.id]||0;
 const upCost    = u=> u.base*Math.pow(u.mult, upLv(u));
 const assetCost = a=> a.base*Math.pow(1.15, owned(a));
-function passiveRate(){ let r=0; for(const a of ASSETS) r+=owned(a)*a.rate; return r; }
+/* Every BOOST_EVERY of an asset unlocks another multiplier for it, so the
+   cheap early assets stay worth stacking instead of being outgrown. */
+const BOOST_EVERY=5, BOOST_MULT=2;
+const boosts     = a=> game.boosts[a.id]||0;
+const assetRate  = a=> a.rate*Math.pow(BOOST_MULT, boosts(a));
+const boostCost  = a=> a.base*25*Math.pow(6, boosts(a));
+const boostReady = a=> owned(a) >= (boosts(a)+1)*BOOST_EVERY;
+function passiveRate(){ let r=0; for(const a of ASSETS) r+=owned(a)*assetRate(a); return r; }
 
 function fmtC(n){
   if(n<1000) return n<10? n.toFixed(1) : Math.floor(n).toString();
@@ -1912,7 +1922,7 @@ function fmtC(n){
 /* ---- persistence, with offline earnings from your assets ---- */
 function save(){
   try{ localStorage.setItem(SAVE_KEY, JSON.stringify({
-    credits:game.credits, up:game.up, assets:game.assets, themes:game.themes, rides:game.rides||0,
+    credits:game.credits, up:game.up, assets:game.assets, boosts:game.boosts, themes:game.themes, rides:game.rides||0,
     vehicles:game.vehicles, vehicle:game.vehicle,
     totalDist:game.totalDist, spent:game.spent, t:Date.now()
   })); }catch(e){}
@@ -1921,7 +1931,7 @@ function load(){
   let d=null;
   try{ d=JSON.parse(localStorage.getItem(SAVE_KEY)||'null'); }catch(e){}
   if(!d) return;
-  game.credits=+d.credits||0; game.up=d.up||{}; game.assets=d.assets||{}; game.themes=d.themes||{};
+  game.credits=+d.credits||0; game.up=d.up||{}; game.assets=d.assets||{}; game.boosts=d.boosts||{}; game.themes=d.themes||{};
   game.vehicles=d.vehicles||{}; game.vehicle=+d.vehicle||0;
   game.totalDist=+d.totalDist||0; game.spent=+d.spent||0; game.rides=+d.rides||0;
   UPGRADES.forEach(u=>{ if(game.up[u.id]>u.max) game.up[u.id]=u.max; });   // re-tuned caps
@@ -2041,9 +2051,25 @@ function renderPhone(){
     document.getElementById('pCodeIn').addEventListener('keydown', e=>{ if(e.key==='Enter') redeem(); });
   } else if(phoneTab==='assets'){
     for(const a of ASSETS){
-      const n=owned(a);
+      const n=owned(a), b=boosts(a), need=(b+1)*BOOST_EVERY, ready=boostReady(a);
       pScreen.appendChild(row(a.icon, a.name, a.desc,
-        'OWNED '+n+'  ·  ◈'+fmtC(a.rate)+'/s each', assetCost(a), false, ()=>buyAsset(a)));
+        'OWNED '+n+'  ·  ◈'+fmtC(assetRate(a))+'/s each'+(b?'  ·  ×'+Math.pow(BOOST_MULT,b):''),
+        assetCost(a), false, ()=>buyAsset(a)));
+      const d=document.createElement('div');
+      d.className='pRow bRow'+(ready?'':' locked');
+      d.innerHTML='<div class="pIcon">✕</div><div class="pInfo"><b></b><span></span><i></i></div>';
+      d.querySelector('b').textContent='Upgrade '+(b+1)+'  ·  ×'+BOOST_MULT+' output';
+      d.querySelector('span').textContent = ready
+        ? 'Doubles what every one you own earns.'
+        : 'Own '+need+' to unlock — you have '+n+'.';
+      d.querySelector('i').textContent = b? 'CURRENTLY ×'+Math.pow(BOOST_MULT,b) : 'NO UPGRADES YET';
+      const btn=document.createElement('button'); btn.className='pBuy';
+      if(ready){
+        btn.textContent='◈'+fmtC(boostCost(a));
+        btn.addEventListener('click',()=>buyBoost(a));
+        buyBtns.push({el:btn, cost:boostCost(a)});
+      } else { btn.textContent='LOCKED'; btn.classList.add('no'); }
+      d.appendChild(btn); pScreen.appendChild(d);
     }
   } else {
     const rows=[
@@ -2116,6 +2142,13 @@ function redeem(){
   save(); renderPhone(); renderPalettes(); renderQueue();
   toast('SECRET UNLOCKED \u2014 '+PALETTES[i].name.toUpperCase());
   previewPalette(i);                       // show it off straight away
+}
+function buyBoost(a){
+  const c=boostCost(a);
+  if(!boostReady(a) || game.credits<c) return;
+  game.credits-=c; game.spent+=c; game.boosts[a.id]=boosts(a)+1;
+  save(); renderPhone();
+  toast(a.name.toUpperCase()+'  \u00D7'+Math.pow(BOOST_MULT,boosts(a))+' OUTPUT');
 }
 function buyAsset(a){
   const c=assetCost(a);
