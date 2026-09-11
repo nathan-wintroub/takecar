@@ -22,11 +22,12 @@
   #speed small{font-size:14px;letter-spacing:4px;}
   #offroad{font-size:13px;letter-spacing:6px;color:var(--hud-a);font-weight:700;margin-top:2px;
     opacity:0;transition:opacity .2s;text-shadow:0 0 10px var(--hud-a);}
-  #mute,#menuBtn{position:fixed;top:16px;z-index:30;background:rgba(20,4,50,.55);
+  /* one flex row, so button widths can never collide however long the labels get */
+  #topBar{position:fixed;top:16px;right:18px;z-index:30;display:flex;gap:10px;align-items:flex-start;}
+  #topBar button{font-family:inherit;white-space:nowrap;background:rgba(20,4,50,.55);
     border:1px solid var(--hud-a);color:var(--hud-b);border-radius:8px;
     padding:8px 14px;font-size:14px;letter-spacing:2px;cursor:pointer;backdrop-filter:blur(4px);}
-  #mute{right:18px;} #menuBtn{right:96px;}
-  #mute:hover,#menuBtn:hover{border-color:var(--hud-b);}
+  #topBar button:hover{border-color:var(--hud-b);}
   /* ---- theme queue menu ---- */
   #menu{position:fixed;top:58px;right:18px;z-index:30;width:340px;max-height:82vh;overflow-y:auto;
     background:rgba(10,3,32,.94);border:1px solid var(--hud-a);border-radius:12px;padding:14px;
@@ -53,6 +54,78 @@
   .chip{display:flex!important;align-items:center;gap:7px;padding:6px!important;text-align:left;}
   .chip .sw{display:flex;border-radius:3px;overflow:hidden;flex:0 0 auto;box-shadow:0 0 6px rgba(0,0,0,.4);}
   .chip .sw i{width:8px;height:15px;display:block;}
+  .chip.locked{opacity:.42;cursor:default;}
+  /* ---- futuristic phone ---- */
+  #phone{position:fixed;right:20px;bottom:20px;z-index:32;width:322px;height:min(628px,80vh);
+    transform:translateY(118%) scale(.96);opacity:0;pointer-events:none;
+    transition:transform .38s cubic-bezier(.2,.9,.25,1),opacity .3s;}
+  #phone.open{transform:none;opacity:1;pointer-events:auto;}
+  .pBody{height:100%;display:flex;flex-direction:column;border-radius:30px;overflow:hidden;
+    background:linear-gradient(165deg,rgba(24,10,52,.95),rgba(7,3,20,.97));
+    border:1px solid var(--hud-a);
+    box-shadow:0 0 44px rgba(0,0,0,.65), 0 0 26px -8px var(--hud-a), inset 0 1px 0 rgba(255,255,255,.14);
+    color:#dce9ff;font-size:12px;letter-spacing:.4px;backdrop-filter:blur(10px);}
+  .pNotch{width:88px;height:5px;border-radius:3px;background:rgba(255,255,255,.22);margin:11px auto 0;flex:0 0 auto;}
+  .pStatus{display:flex;justify-content:space-between;align-items:center;padding:9px 18px 4px;
+    font-size:9px;letter-spacing:2px;color:var(--hud-b);opacity:.8;flex:0 0 auto;}
+  .pCredits{padding:6px 20px 12px;flex:0 0 auto;}
+  .pCredits small{display:block;font-size:9px;letter-spacing:3px;opacity:.55;}
+  .pCredits b{display:block;font-size:31px;font-weight:800;font-style:italic;line-height:1.12;
+    background:linear-gradient(180deg,var(--hud-b),var(--hud-a));
+    -webkit-background-clip:text;background-clip:text;color:transparent;}
+  .pCredits em{font-style:normal;font-size:10px;letter-spacing:1px;color:var(--hud-b);opacity:.8;}
+  .pTabs{display:flex;gap:5px;padding:0 14px 10px;flex:0 0 auto;}
+  .pTabs button{flex:1;font-family:inherit;font-size:9px;letter-spacing:1px;padding:7px 0;cursor:pointer;
+    background:rgba(255,255,255,.05);color:#dce9ff;border:1px solid rgba(255,255,255,.16);border-radius:8px;}
+  .pTabs button.on{background:var(--hud-a);border-color:var(--hud-a);color:#0a0418;font-weight:700;}
+  .pScreen{flex:1;overflow-y:auto;padding:2px 14px 16px;}
+  .pScreen::-webkit-scrollbar{width:4px;}
+  .pScreen::-webkit-scrollbar-thumb{background:var(--hud-a);border-radius:2px;}
+  .pRow{display:flex;align-items:center;gap:9px;padding:9px 10px;margin-bottom:7px;border-radius:11px;
+    background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.09);
+    border-left:2px solid var(--hud-a);}
+  .pRow.max{opacity:.5;border-left-color:rgba(255,255,255,.3);}
+  .pIcon{font-size:17px;width:24px;text-align:center;flex:0 0 auto;filter:drop-shadow(0 0 5px var(--hud-a));}
+  .pInfo{flex:1;min-width:0;}
+  .pInfo b{display:block;font-size:11.5px;letter-spacing:.6px;}
+  .pInfo span{display:block;font-size:9.5px;opacity:.6;line-height:1.35;margin-top:1px;}
+  .pInfo i{font-style:normal;font-size:9px;letter-spacing:1.4px;color:var(--hud-b);}
+  .pBuy{font-family:inherit;font-size:10px;font-weight:700;letter-spacing:.5px;padding:7px 9px;min-width:56px;
+    cursor:pointer;border-radius:8px;border:1px solid var(--hud-b);color:var(--hud-b);
+    background:rgba(255,255,255,.06);flex:0 0 auto;}
+  .pBuy.no{opacity:.32;cursor:default;border-color:rgba(255,255,255,.25);color:#dce9ff;}
+  .pBuy:not(.no):hover{background:var(--hud-b);color:#0a0418;}
+  .tSw{display:flex;border-radius:3px;overflow:hidden;width:fit-content;margin:4px 0 3px;}
+  .tSw i{width:17px;height:11px;display:block;}
+  .tR0{color:#9fb0c8}.tR1{color:#5ec8ff}.tR2{color:#d38bff}.tR3{color:#ffcf4a}.tR4{color:#ffcb05}
+  .pCode{margin-top:14px;padding-top:12px;border-top:1px dashed rgba(255,255,255,.16);}
+  .pCode small{display:block;font-size:9px;letter-spacing:3px;opacity:.55;margin-bottom:7px;}
+  .pCode>div{display:flex;gap:6px;}
+  .pCode input{flex:1;min-width:0;font-family:inherit;font-size:11px;letter-spacing:1.5px;
+    background:#170a38;color:#dce9ff;border:1px solid rgba(255,255,255,.22);border-radius:8px;padding:8px 10px;}
+  .pCode input:focus{outline:none;border-color:var(--hud-b);}
+  .pCode button{font-family:inherit;font-size:10px;font-weight:700;letter-spacing:1px;padding:8px 15px;
+    cursor:pointer;border-radius:8px;border:1px solid var(--hud-b);color:var(--hud-b);background:rgba(255,255,255,.06);}
+  .pCode button:hover{background:var(--hud-b);color:#0a0418;}
+  .pRow.owned{border-left-color:var(--hud-b);}
+  .pStat{display:flex;justify-content:space-between;padding:7px 2px;border-bottom:1px solid rgba(255,255,255,.07);}
+  .pStat span:last-child{color:var(--hud-b);}
+  #toast{position:fixed;left:50%;top:76px;transform:translateX(-50%);z-index:33;pointer-events:none;
+    background:rgba(10,3,32,.9);border:1px solid var(--hud-a);border-radius:10px;padding:10px 18px;
+    color:var(--hud-b);font-size:12px;letter-spacing:2px;opacity:0;transition:opacity .5s;}
+  #toast.on{opacity:1;}
+  #money{font-size:15px;font-weight:700;letter-spacing:2px;color:var(--hud-b);margin-top:6px;
+    text-shadow:0 0 10px var(--hud-a);}
+  #fare{margin-top:8px;font-size:12px;font-weight:700;letter-spacing:2px;color:var(--hud-b);
+    text-shadow:0 0 10px var(--hud-a);opacity:0;transition:opacity .3s;}
+  #boost{display:flex;align-items:center;gap:8px;margin-top:7px;}
+  #boost span{font-size:9px;letter-spacing:3px;color:var(--hud-b);opacity:.72;}
+  #boostBar{width:132px;height:7px;border-radius:4px;overflow:hidden;
+    background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.18);}
+  #boostFill{display:block;height:100%;width:100%;background:var(--hud-b);box-shadow:0 0 9px var(--hud-b);}
+  #boost.low #boostFill{background:var(--hud-a);box-shadow:0 0 9px var(--hud-a);}
+  #boost.lock{animation:bpulse .7s infinite;}
+  @keyframes bpulse{0%,100%{opacity:1}50%{opacity:.35}}
   /* ---- Title overlay ---- */
   #title{position:fixed;inset:0;z-index:20;display:flex;flex-direction:column;
     align-items:center;justify-content:center;gap:14px;cursor:pointer;
@@ -79,9 +152,33 @@
 <div id="hud">
   <div id="speed">0 <small>KM/H</small></div>
   <div id="offroad">OFF ROAD</div>
+  <div id="money">◈ 0</div>
+  <div id="boost"><span>BOOST</span><div id="boostBar"><i id="boostFill"></i></div></div>
+  <div id="fare"></div>
 </div>
-<button id="mute">♪ ON</button>
-<button id="menuBtn">⚙ THEMES</button>
+<div id="toast"></div>
+<div id="phone">
+  <div class="pBody">
+    <div class="pNotch"></div>
+    <div class="pStatus"><span>NIGHTWAVE OS</span><span id="pClock">--:--</span><span>▮▮▮ ⬤</span></div>
+    <div class="pCredits">
+      <small>CREDITS</small><b id="pCred">0</b><em id="pRate">+0 / sec</em>
+    </div>
+    <div class="pTabs">
+      <button data-tab="garage" class="on">TUNE</button>
+      <button data-tab="rides">RIDES</button>
+      <button data-tab="assets">ASSETS</button>
+      <button data-tab="themes">STYLE</button>
+      <button data-tab="stats">STATS</button>
+    </div>
+    <div class="pScreen" id="pScreen"></div>
+  </div>
+</div>
+<div id="topBar">
+  <button id="phoneBtn">▮ PHONE</button>
+  <button id="menuBtn">⚙ THEMES</button>
+  <button id="mute">♪ ON</button>
+</div>
 <div id="menu" hidden>
   <div class="mhead"><h3>COLOR QUEUE</h3><button class="x" id="menuClose">✕</button></div>
   <div id="nowPlaying"></div>
@@ -100,7 +197,7 @@
   <div class="jp">夜 の ド ラ イ ブ</div>
   <div class="press">PRESS ANY KEY — JUST DRIVE</div>
 </div>
-<div id="hint">◄ ► STEER&nbsp;&nbsp;▲ GAS&nbsp;&nbsp;▼ BRAKE&nbsp;&nbsp;SHIFT BOOST&nbsp;&nbsp;SPACE HOP&nbsp;·&nbsp;SPACE MID-AIR = KICKFLIP</div>
+<div id="hint">◄ ► STEER&nbsp;&nbsp;▲ GAS&nbsp;&nbsp;▼ BRAKE&nbsp;&nbsp;SHIFT BOOST&nbsp;&nbsp;SPACE HOP&nbsp;·&nbsp;SPACE MID-AIR = KICKFLIP&nbsp;&nbsp;P PHONE</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
@@ -116,6 +213,10 @@ scene.fog = new THREE.Fog(0x46125e, 260, 1000);
 const baseFogColor = new THREE.Color(0x46125e);   // theme fog; darkened toward black inside tunnels
 const BLACKC = new THREE.Color(0x000000);
 const SUN_BASE = 0.9;
+
+/* persistent player state — declared up here because the vehicle, theme and
+   economy systems all read it, and the vehicle rig is built first */
+const game={credits:0, up:{}, assets:{}, themes:{}, vehicles:{}, vehicle:0, totalDist:0, spent:0};
 
 const camera = new THREE.PerspectiveCamera(70, innerWidth/innerHeight, .1, 3000);
 camera.position.set(0,7,10);
@@ -228,13 +329,12 @@ function drawGrid(base,line){
   gridTex.needsUpdate=true;
 }
 const GRID_CELL=20;
+let groundMat;   // dimmed inside the city so pavement reads instead of neon void
 {
   const gw=2600, gl=3000;
   gridTex.repeat.set(gw/GRID_CELL, gl/GRID_CELL);
-  const ground=new THREE.Mesh(
-    new THREE.PlaneGeometry(gw,gl),
-    new THREE.MeshBasicMaterial({map:gridTex, fog:true})
-  );
+  groundMat=new THREE.MeshBasicMaterial({map:gridTex, fog:true});
+  const ground=new THREE.Mesh(new THREE.PlaneGeometry(gw,gl), groundMat);
   ground.rotation.x=-Math.PI/2;
   ground.position.set(0,-.05,-1100);
   scene.add(ground);
@@ -323,169 +423,309 @@ let starsMat;
   skyGroup.add(new THREE.Points(g, starsMat));
 })();
 
-/* ---------------- the car ----------------
-   Low, wedge-nosed synthwave hypercar. Nose points -Z. */
+/* ================================================================
+   VEHICLES — swappable bodies, pure vanity. Every model is built from
+   the same shared material set, so a palette shift recolours whichever
+   one you're driving without any extra plumbing.
+   ================================================================ */
 const car=new THREE.Group();
-{
-  // taper the front (-Z) face of a box to get sharp, raked panels
-  function wedge(w,h,d, fx,fy, dz){
-    const g=new THREE.BoxGeometry(w,h,d);
-    const p=g.attributes.position;
-    for(let i=0;i<p.count;i++){
-      if(p.getZ(i) < 0){
-        p.setX(i, p.getX(i)*fx);
-        p.setY(i, p.getY(i)*fy);
-        if(dz) p.setZ(i, p.getZ(i)+dz);
-      }
-    }
-    g.computeVertexNormals();
-    return g;
-  }
-
-  const paintMat = new THREE.MeshPhongMaterial({color:0x1e1046, emissive:0x0b0524, specular:0x9b5bff, shininess:70, flatShading:true});
-  const panelMat = new THREE.MeshPhongMaterial({color:0x2b1a63, emissive:0x0c0730, specular:0x6a3fd0, shininess:50, flatShading:true});
-  const darkMat  = new THREE.MeshLambertMaterial({color:0x0b0518});
-  const rimMat   = new THREE.MeshPhongMaterial({color:0x5a5a86, emissive:0x111122, specular:0xffffff, shininess:120});
-  const glassMat = new THREE.MeshPhongMaterial({color:0x081a2c, emissive:0x0c3350, specular:0xbfefff, shininess:140, transparent:true, opacity:.9});
-  const pinkMat  = new THREE.MeshBasicMaterial({color:0xff2d78});
-  const cyanMat  = new THREE.MeshBasicMaterial({color:0x9ff6ff});
-
-  // ---- main tub: wide haunches, pointed nose ----
-  const body=new THREE.Mesh(wedge(4.5,.78,8.8, .34,.75, .6), paintMat);
-  body.position.y=.82; car.add(body);
-
-  // ---- long low hood wedge ----
-  const hood=new THREE.Mesh(wedge(3.9,.42,3.6, .3,.5, .5), panelMat);
-  hood.position.set(0,1.12,-2.6); hood.rotation.x=-.06; car.add(hood);
-
-  // ---- rear deck / engine cover with louvres ----
-  const deck=new THREE.Mesh(wedge(4.2,.4,3.0, .8,.7, 0), panelMat);
-  deck.position.set(0,1.16,2.7); deck.rotation.x=.04; car.add(deck);
-  for(let i=0;i<5;i++){
-    const lv=new THREE.Mesh(new THREE.BoxGeometry(3.5,.05,.16), darkMat);
-    lv.position.set(0,1.4-i*.03,1.7+i*.42); lv.rotation.x=-.5; car.add(lv);
-  }
-
-  // ---- sharp raked cabin / canopy ----
-  const cabin=new THREE.Mesh(wedge(3.15,.92,3.7, .42,.62, .8), glassMat);
-  cabin.position.set(0,1.62,.5); cabin.rotation.x=-.05; car.add(cabin);
-  const roof=new THREE.Mesh(wedge(2.4,.16,2.4, .55,1, .4), paintMat);
-  roof.position.set(0,2.06,.7); car.add(roof);
-  // A-pillar accent
-  const wsTrim=new THREE.Mesh(new THREE.BoxGeometry(3.0,.08,.08), cyanMat);
-  wsTrim.position.set(0,1.72,-1.05); wsTrim.rotation.x=-.5; car.add(wsTrim);
-
-  // ---- front splitter + canards ----
-  const split=new THREE.Mesh(new THREE.BoxGeometry(3.9,.12,1.1), darkMat);
-  split.position.set(0,.42,-4.15); car.add(split);
-  const splitLip=new THREE.Mesh(new THREE.BoxGeometry(3.9,.05,.12), cyanMat);
-  splitLip.position.set(0,.4,-4.66); car.add(splitLip);
-  [[-1],[1]].forEach(([s])=>{
-    const can=new THREE.Mesh(new THREE.BoxGeometry(.9,.05,.5), pinkMat);
-    can.position.set(s*2.15,.62,-3.7); can.rotation.z=s*.25; car.add(can);
-  });
-
-  // ---- side skirts + neon character line ----
-  [[-1],[1]].forEach(([s])=>{
-    const skirt=new THREE.Mesh(new THREE.BoxGeometry(.18,.28,5.2), darkMat);
-    skirt.position.set(s*2.24,.5,.3); car.add(skirt);
-    const line=new THREE.Mesh(wedge(.06,.09,6.6, 1,1, .8), s>0?pinkMat:cyanMat);
-    line.position.set(s*2.28,.95,-.2); car.add(line);
-    // air intake scoop ahead of rear wheel
-    const scoop=new THREE.Mesh(wedge(.5,.5,1.4, .2,.4,0), darkMat);
-    scoop.position.set(s*2.3,.95,1.6); scoop.rotation.y=s*-.15; car.add(scoop);
-  });
-
-  // ---- wheels: low-profile, spoked rim, neon ring ----
-  const tireGeo=new THREE.CylinderGeometry(.82,.82,.52,20);
-  const rimGeo =new THREE.CylinderGeometry(.5,.5,.54,6);
-  const hubGeo =new THREE.CylinderGeometry(.13,.13,.56,8);
-  const ringGeo=new THREE.TorusGeometry(.8,.055,8,22);
-  car.userData.frontWheels=[]; car.userData.wheelSpin=[];
-  [[-2.15,-2.9,1],[2.15,-2.9,1],[-2.15,3.0,0],[2.15,3.0,0]].forEach(([x,z,isFront])=>{
-    const pivot=new THREE.Group(); pivot.position.set(x,.8,z); car.add(pivot);
-    const spin=new THREE.Group(); pivot.add(spin);
-    const tire=new THREE.Mesh(tireGeo,darkMat); tire.rotation.z=Math.PI/2; spin.add(tire);
-    const rim =new THREE.Mesh(rimGeo,rimMat);  rim.rotation.z=Math.PI/2;  spin.add(rim);
-    const hub =new THREE.Mesh(hubGeo,cyanMat); hub.rotation.z=Math.PI/2;  spin.add(hub);
-    const ring=new THREE.Mesh(ringGeo, x<0?cyanMat:pinkMat); ring.rotation.y=Math.PI/2; pivot.add(ring);
-    // arch shadow
-    const arch=new THREE.Mesh(new THREE.BoxGeometry(.1,1.4,2.4), darkMat);
-    arch.position.set(x>0?.5:-.5,.4,0); pivot.add(arch);
-    car.userData.wheelSpin.push(spin);
-    if(isFront) car.userData.frontWheels.push(pivot);
-  });
-
-  // ---- headlights: thin angled slashes ----
-  [[-1.35],[1.35]].forEach(([x])=>{
-    const hl=new THREE.Mesh(wedge(1.15,.16,.7, .3,.6,0), cyanMat);
-    hl.position.set(x,.98,-4.0); hl.rotation.z=x>0?-.12:.12; car.add(hl);
-  });
-  const beam=new THREE.SpotLight(0x9ff6ff,1.4,90,.5,.6);
-  beam.position.set(0,1,-3.8); beam.target.position.set(0,0,-40);
-  car.add(beam, beam.target);
-
-  // ---- full-width tail light bar + brake glow ----
-  const tail=new THREE.Mesh(new THREE.BoxGeometry(4.0,.26,.12), pinkMat);
-  tail.position.set(0,1.12,4.32); car.add(tail);
-  const tailInMat=new THREE.MeshBasicMaterial({color:0xffb3d6});
-  const tailIn=new THREE.Mesh(new THREE.BoxGeometry(3.4,.09,.14), tailInMat);
-  tailIn.position.set(0,1.12,4.35); car.add(tailIn);
-  const flames=[];
-  [[-1.55],[1.55]].forEach(([x])=>{
-    const ex=new THREE.Mesh(new THREE.CylinderGeometry(.16,.16,.5,10), rimMat);
-    ex.rotation.x=Math.PI/2; ex.position.set(x,.55,4.35); car.add(ex);
-    // boost flame — two nested open cones anchored at the exhaust, trailing +Z
-    const mkCone=(r,h,col,op)=>{
-      const geo=new THREE.ConeGeometry(r,h,12,1,true); geo.translate(0,h/2,0);
-      const m=new THREE.Mesh(geo, new THREE.MeshBasicMaterial({color:col, transparent:true, opacity:0,
-        blending:THREE.AdditiveBlending, depthWrite:false, side:THREE.DoubleSide}));
-      m.rotation.x=Math.PI/2; m.position.set(x,.55,4.5); m.visible=false; car.add(m); return m;
-    };
-    flames.push({ outer:mkCone(.5,3.6,0xff6a1a), inner:mkCone(.24,2.3,0xffe9a8) });
-  });
-  car.userData.flames=flames;
-
-  // ---- diffuser fins ----
-  for(let i=-2;i<=2;i++){
-    const fin=new THREE.Mesh(new THREE.BoxGeometry(.1,.5,1.0), darkMat);
-    fin.position.set(i*.7,.42,4.0); car.add(fin);
-  }
-
-  // ---- rear wing on swan-neck struts ----
-  [[-1.6],[1.6]].forEach(([x])=>{
-    const strut=new THREE.Mesh(new THREE.BoxGeometry(.14,.95,.5), darkMat);
-    strut.position.set(x,1.75,3.9); strut.rotation.x=.2; car.add(strut);
-  });
-  const wing=new THREE.Mesh(new THREE.BoxGeometry(4.9,.1,1.15), panelMat);
-  wing.position.set(0,2.2,4.05); wing.rotation.x=.16; car.add(wing);
-  const wingLip=new THREE.Mesh(new THREE.BoxGeometry(4.9,.05,.12), pinkMat);
-  wingLip.position.set(0,2.16,4.6); wingLip.rotation.x=.16; car.add(wingLip);
-  [[-2.45],[2.45]].forEach(([x])=>{
-    const ep=new THREE.Mesh(wedge(.09,.6,1.3, 1,.5,0), cyanMat);
-    ep.position.set(x,2.2,4.05); car.add(ep);
-  });
-
-  // ---- glows ----
-  const under=new THREE.PointLight(0xff2fd0, 2.0, 18); under.position.y=.35; car.add(under);
-  const under2=new THREE.PointLight(0x29f3ff, 1.2, 14); under2.position.set(0,.35,-2.5); car.add(under2);
-  const tailGlowTex=(function(){
-    const cv=document.createElement('canvas'); cv.width=128; cv.height=64;
-    const g=cv.getContext('2d');
-    const rg=g.createRadialGradient(64,32,4,64,32,60);
-    rg.addColorStop(0,'rgba(255,255,255,.9)'); rg.addColorStop(1,'rgba(255,255,255,0)');
-    g.fillStyle=rg; g.fillRect(0,0,128,64);
-    return new THREE.CanvasTexture(cv);
-  })();
-  const tg=new THREE.Mesh(new THREE.PlaneGeometry(7.0,2.6),
-    new THREE.MeshBasicMaterial({map:tailGlowTex, color:0xff2fd0, transparent:true, blending:THREE.AdditiveBlending, depthWrite:false}));
-  tg.position.set(0,1.15,4.5); tg.rotation.y=Math.PI; car.add(tg);
-  car.userData.tailGlow=tg;
-  car.userData.theme={ paintMat, panelMat, darkMat, rimMat, glassMat,
-    accentA:pinkMat, accentB:cyanMat, tailInMat, beam, under, under2, tailGlowMat:tg.material, flames };
-}
 car.position.set(0,0,-8);
 scene.add(car);
+
+/* taper the front (-Z) face of a box to get sharp, raked panels */
+function wedge(w,h,d, fx,fy, dz){
+  const g=new THREE.BoxGeometry(w,h,d);
+  const p=g.attributes.position;
+  for(let i=0;i<p.count;i++){
+    if(p.getZ(i) < 0){
+      p.setX(i, p.getX(i)*fx);
+      p.setY(i, p.getY(i)*fy);
+      if(dz) p.setZ(i, p.getZ(i)+dz);
+    }
+  }
+  g.computeVertexNormals();
+  return g;
+}
+
+/* ---- shared materials: theming touches these and every body follows ---- */
+const vPaint = new THREE.MeshPhongMaterial({color:0x1e1046, emissive:0x0b0524, specular:0x9b5bff, shininess:70, flatShading:true});
+const vPanel = new THREE.MeshPhongMaterial({color:0x2b1a63, emissive:0x0c0730, specular:0x6a3fd0, shininess:50, flatShading:true});
+const vDark  = new THREE.MeshLambertMaterial({color:0x0b0518});
+const vRim   = new THREE.MeshPhongMaterial({color:0x5a5a86, emissive:0x111122, specular:0xffffff, shininess:120});
+const vGlass = new THREE.MeshPhongMaterial({color:0x081a2c, emissive:0x0c3350, specular:0xbfefff, shininess:140, transparent:true, opacity:.9});
+const vA     = new THREE.MeshBasicMaterial({color:0xff2d78});     // accent A
+const vB     = new THREE.MeshBasicMaterial({color:0x9ff6ff});     // accent B
+const vTailIn= new THREE.MeshBasicMaterial({color:0xffb3d6});
+const vFlameO= new THREE.MeshBasicMaterial({color:0xff6a1a, transparent:true, opacity:0, blending:THREE.AdditiveBlending, depthWrite:false, side:THREE.DoubleSide});
+const vFlameI= new THREE.MeshBasicMaterial({color:0xffe9a8, transparent:true, opacity:0, blending:THREE.AdditiveBlending, depthWrite:false, side:THREE.DoubleSide});
+const tailGlowTex=(function(){
+  const cv=document.createElement('canvas'); cv.width=128; cv.height=64;
+  const g=cv.getContext('2d');
+  const rg=g.createRadialGradient(64,32,4,64,32,60);
+  rg.addColorStop(0,'rgba(255,255,255,.9)'); rg.addColorStop(1,'rgba(255,255,255,0)');
+  g.fillStyle=rg; g.fillRect(0,0,128,64);
+  return new THREE.CanvasTexture(cv);
+})();
+const vTailGlow=new THREE.MeshBasicMaterial({map:tailGlowTex, color:0xff2fd0, transparent:true, blending:THREE.AdditiveBlending, depthWrite:false});
+
+/* lights ride on the container, so they survive a body swap */
+const beam=new THREE.SpotLight(0x9ff6ff,1.4,90,.5,.6);
+beam.position.set(0,1,-3.8); beam.target.position.set(0,0,-40);
+car.add(beam, beam.target);
+const under =new THREE.PointLight(0xff2fd0, 2.0, 18); under.position.y=.35; car.add(under);
+const under2=new THREE.PointLight(0x29f3ff, 1.2, 14); under2.position.set(0,.35,-2.5); car.add(under2);
+
+car.userData.theme={ paintMat:vPaint, panelMat:vPanel, darkMat:vDark, rimMat:vRim, glassMat:vGlass,
+  accentA:vA, accentB:vB, tailInMat:vTailIn, beam, under, under2,
+  tailGlowMat:vTailGlow, flameO:vFlameO, flameI:vFlameI };
+
+/* ---- shared builders ---- */
+function addWheel(g, rig, x, y, z, r, w, isFront, spokes){
+  const pivot=new THREE.Group(); pivot.position.set(x,y,z); g.add(pivot);
+  const spin=new THREE.Group(); pivot.add(spin);
+  const tire=new THREE.Mesh(new THREE.CylinderGeometry(r,r,w,20), vDark); tire.rotation.z=Math.PI/2; spin.add(tire);
+  const rim =new THREE.Mesh(new THREE.CylinderGeometry(r*.6,r*.6,w*1.04,spokes||6), vRim); rim.rotation.z=Math.PI/2; spin.add(rim);
+  const hub =new THREE.Mesh(new THREE.CylinderGeometry(.13,.13,w*1.1,8), vB); hub.rotation.z=Math.PI/2; spin.add(hub);
+  const ring=new THREE.Mesh(new THREE.TorusGeometry(r*.98,.055,8,22), x<0?vB:vA); ring.rotation.y=Math.PI/2; pivot.add(ring);
+  rig.wheelSpin.push(spin);
+  if(isFront) rig.frontWheels.push(pivot);
+  return pivot;
+}
+function addFlame(g, rig, x, y, z, rOuter, len){
+  const mk=(r,h,mat)=>{
+    const geo=new THREE.ConeGeometry(r,h,12,1,true); geo.translate(0,h/2,0);
+    const m=new THREE.Mesh(geo, mat);
+    m.rotation.x=Math.PI/2; m.position.set(x,y,z); m.visible=false; g.add(m); return m;
+  };
+  rig.flames.push({ outer:mk(rOuter,len,vFlameO), inner:mk(rOuter*.48,len*.64,vFlameI) });
+}
+function addTailGlow(g, rig, y, z, w, h){
+  const tg=new THREE.Mesh(new THREE.PlaneGeometry(w,h), vTailGlow);
+  tg.position.set(0,y,z); tg.rotation.y=Math.PI; g.add(tg);
+  rig.tailGlow=tg;
+}
+
+/* ================= the bodies ================= */
+function buildWedge(g, rig){
+  const B=(geo,mat,x,y,z,rx,ry,rz)=>{ const m=new THREE.Mesh(geo,mat);
+    m.position.set(x,y,z); if(rx)m.rotation.x=rx; if(ry)m.rotation.y=ry; if(rz)m.rotation.z=rz; g.add(m); return m; };
+  B(wedge(4.5,.78,8.8,.34,.75,.6), vPaint, 0,.82,0);
+  B(wedge(3.9,.42,3.6,.3,.5,.5), vPanel, 0,1.12,-2.6, -.06);
+  B(wedge(4.2,.4,3.0,.8,.7,0), vPanel, 0,1.16,2.7, .04);
+  for(let i=0;i<5;i++) B(new THREE.BoxGeometry(3.5,.05,.16), vDark, 0,1.4-i*.03,1.7+i*.42, -.5);
+  B(wedge(3.15,.92,3.7,.42,.62,.8), vGlass, 0,1.62,.5, -.05);
+  B(wedge(2.4,.16,2.4,.55,1,.4), vPaint, 0,2.06,.7);
+  B(new THREE.BoxGeometry(3.0,.08,.08), vB, 0,1.72,-1.05, -.5);
+  B(new THREE.BoxGeometry(3.9,.12,1.1), vDark, 0,.42,-4.15);
+  B(new THREE.BoxGeometry(3.9,.05,.12), vB, 0,.4,-4.66);
+  [[-1],[1]].forEach(([s])=>{
+    B(new THREE.BoxGeometry(.9,.05,.5), vA, s*2.15,.62,-3.7, 0,0,s*.25);
+    B(new THREE.BoxGeometry(.18,.28,5.2), vDark, s*2.24,.5,.3);
+    B(wedge(.06,.09,6.6,1,1,.8), s>0?vA:vB, s*2.28,.95,-.2);
+    B(wedge(.5,.5,1.4,.2,.4,0), vDark, s*2.3,.95,1.6, 0,s*-.15);
+    B(new THREE.BoxGeometry(.14,.95,.5), vDark, s*1.6,1.75,3.9, .2);
+    B(wedge(.09,.6,1.3,1,.5,0), vB, s*2.45,2.2,4.05);
+  });
+  [[-2.15,-2.9,1],[2.15,-2.9,1],[-2.15,3.0,0],[2.15,3.0,0]].forEach(([x,z,f])=>{
+    const p=addWheel(g,rig,x,.8,z,.82,.52,f,6);
+    const arch=new THREE.Mesh(new THREE.BoxGeometry(.1,1.4,2.4), vDark);
+    arch.position.set(x>0?.5:-.5,.4,0); p.add(arch);
+  });
+  [[-1.35],[1.35]].forEach(([x])=> B(wedge(1.15,.16,.7,.3,.6,0), vB, x,.98,-4.0, 0,0, x>0?-.12:.12));
+  B(new THREE.BoxGeometry(4.0,.26,.12), vA, 0,1.12,4.32);
+  B(new THREE.BoxGeometry(3.4,.09,.14), vTailIn, 0,1.12,4.35);
+  [[-1.55],[1.55]].forEach(([x])=> B(new THREE.CylinderGeometry(.16,.16,.5,10), vRim, x,.55,4.35, Math.PI/2));
+  for(let i=-2;i<=2;i++) B(new THREE.BoxGeometry(.1,.5,1.0), vDark, i*.7,.42,4.0);
+  B(new THREE.BoxGeometry(4.9,.1,1.15), vPanel, 0,2.2,4.05, .16);
+  B(new THREE.BoxGeometry(4.9,.05,.12), vA, 0,2.16,4.6, .16);
+  addFlame(g,rig,-1.55,.55,4.5,.5,3.6);
+  addFlame(g,rig, 1.55,.55,4.5,.5,3.6);
+  addTailGlow(g,rig,1.15,4.5,7.0,2.6);
+}
+
+function buildRoadster(g, rig){
+  const B=(geo,mat,x,y,z,rx,ry,rz)=>{ const m=new THREE.Mesh(geo,mat);
+    m.position.set(x,y,z); if(rx)m.rotation.x=rx; if(ry)m.rotation.y=ry; if(rz)m.rotation.z=rz; g.add(m); return m; };
+  B(wedge(4.3,1.0,8.2,.62,.7,.4), vPaint, 0,.95,0);            // soft rounded tub
+  B(wedge(3.8,.36,3.2,.6,.7,.3), vPanel, 0,1.5,-2.5, -.08);    // long bonnet
+  B(new THREE.BoxGeometry(2.6,.1,1.5), vB, 0,1.69,-2.3, -.08); // bonnet stripe
+  B(wedge(3.4,.5,1.6,.7,.6,0), vGlass, 0,1.86,-.5, -.42);      // low windscreen
+  B(new THREE.BoxGeometry(3.5,.12,.12), vA, 0,2.12,-.95, -.42);
+  [[-1],[1]].forEach(([s])=>{
+    B(new THREE.TorusGeometry(.55,.12,8,14,Math.PI), vRim, s*.85,1.95,1.0, 0,0,0);  // roll hoops
+    B(new THREE.BoxGeometry(.16,.3,4.6), vDark, s*2.18,.62,.4);                     // sill
+    B(new THREE.BoxGeometry(.07,.1,5.4), s>0?vA:vB, s*2.2,1.15,-.2);                // neon line
+    B(new THREE.CylinderGeometry(.15,.15,2.2,10), vRim, s*2.24,.62,1.9, Math.PI/2); // side pipe
+  });
+  B(new THREE.BoxGeometry(3.6,.6,1.7), vDark, 0,1.15,1.5);      // cockpit well
+  B(new THREE.BoxGeometry(1.2,.22,1.1), vPanel, 0,1.5,1.3);     // seat back
+  B(wedge(4.1,.5,2.6,.9,.8,0), vPanel, 0,1.42,2.9, .05);        // boot
+  B(new THREE.BoxGeometry(3.6,.22,.12), vA, 0,1.42,4.06);
+  B(new THREE.BoxGeometry(3.0,.08,.14), vTailIn, 0,1.42,4.09);
+  [[-1.3],[1.3]].forEach(([x])=>{
+    B(new THREE.CylinderGeometry(.34,.34,.34,14), vB, x,1.0,-4.02, Math.PI/2);      // round headlamps
+    B(new THREE.CylinderGeometry(.2,.2,.55,10), vRim, x,.62,4.16, Math.PI/2);
+  });
+  [[-2.1,-2.8,1],[2.1,-2.8,1],[-2.1,2.9,0],[2.1,2.9,0]].forEach(([x,z,f])=>
+    addWheel(g,rig,x,.86,z,.88,.5,f,10));
+  addFlame(g,rig,-1.3,.62,4.3,.42,3.0);
+  addFlame(g,rig, 1.3,.62,4.3,.42,3.0);
+  addTailGlow(g,rig,1.45,4.25,6.2,2.4);
+}
+
+function buildMuscle(g, rig){
+  const B=(geo,mat,x,y,z,rx,ry,rz)=>{ const m=new THREE.Mesh(geo,mat);
+    m.position.set(x,y,z); if(rx)m.rotation.x=rx; if(ry)m.rotation.y=ry; if(rz)m.rotation.z=rz; g.add(m); return m; };
+  B(new THREE.BoxGeometry(4.8,1.15,9.4), vPaint, 0,1.15,0);     // slab body
+  B(new THREE.BoxGeometry(4.5,.5,3.8), vPanel, 0,1.85,-2.9);    // flat bonnet
+  B(new THREE.BoxGeometry(1.5,.5,1.7), vDark, 0,2.22,-2.6);     // scoop
+  B(new THREE.BoxGeometry(1.2,.18,1.4), vA, 0,2.46,-2.6);
+  B(new THREE.BoxGeometry(3.9,1.2,3.4), vGlass, 0,2.32,.5);     // greenhouse
+  B(new THREE.BoxGeometry(4.1,.2,3.2), vPaint, 0,2.94,.6);      // roof
+  B(new THREE.BoxGeometry(4.6,.7,2.6), vPanel, 0,1.95,3.4);     // raised tail
+  B(new THREE.BoxGeometry(4.4,.3,.14), vA, 0,1.9,4.72);
+  B(new THREE.BoxGeometry(3.8,.1,.16), vTailIn, 0,1.9,4.75);
+  [[-1],[1]].forEach(([s])=>{
+    B(new THREE.CylinderGeometry(.26,.26,4.2,10), vRim, s*2.5,.62,.6, Math.PI/2);   // side pipes
+    B(new THREE.BoxGeometry(.09,.12,7.2), s>0?vA:vB, s*2.42,1.5,-.2);
+    B(new THREE.BoxGeometry(.18,1.0,.5), vDark, s*1.9,2.55,4.2, .18);               // wing struts
+    B(new THREE.BoxGeometry(1.3,.26,.6), vB, s*1.55,1.25,-4.7);                     // quad lamps
+  });
+  B(new THREE.BoxGeometry(5.0,.16,1.2), vPanel, 0,3.05,4.35, .12);                  // ducktail wing
+  B(new THREE.BoxGeometry(4.6,.16,1.0), vDark, 0,.5,-4.8);                          // chin spoiler
+  addWheel(g,rig,-2.25,.92,-3.1,.94,.56,1,6);
+  addWheel(g,rig, 2.25,.92,-3.1,.94,.56,1,6);
+  addWheel(g,rig,-2.35,1.08,3.2,1.1,.82,0,6);                                       // fat rears
+  addWheel(g,rig, 2.35,1.08,3.2,1.1,.82,0,6);
+  addFlame(g,rig,-2.5,.62,2.75,.34,2.4);
+  addFlame(g,rig, 2.5,.62,2.75,.34,2.4);
+  addTailGlow(g,rig,1.95,4.95,7.4,2.8);
+}
+
+function buildVan(g, rig){
+  const B=(geo,mat,x,y,z,rx,ry,rz)=>{ const m=new THREE.Mesh(geo,mat);
+    m.position.set(x,y,z); if(rx)m.rotation.x=rx; if(ry)m.rotation.y=ry; if(rz)m.rotation.z=rz; g.add(m); return m; };
+  B(new THREE.BoxGeometry(4.6,3.1,9.0), vPaint, 0,2.15,.3);         // tall slab
+  B(wedge(4.5,1.6,2.4,.92,.72,0), vPanel, 0,1.45,-4.1);             // snub nose
+  B(new THREE.BoxGeometry(3.9,1.3,.3), vGlass, 0,2.75,-4.2, -.16);  // big windscreen
+  [[-1],[1]].forEach(([s])=>{
+    B(new THREE.BoxGeometry(.2,1.0,2.0), vGlass, s*2.32,2.8,-2.0);  // cab windows
+    B(new THREE.BoxGeometry(.2,1.0,2.4), vGlass, s*2.32,2.8,.8);
+    B(new THREE.BoxGeometry(.1,.34,8.4), s>0?vA:vB, s*2.33,1.5,.3); // stripe
+    B(new THREE.BoxGeometry(.1,.18,8.4), vTailIn, s*2.33,1.14,.3);
+    B(new THREE.BoxGeometry(.5,.28,.5), vDark, s*1.9,3.78,-2.2);    // roof rack feet
+    B(new THREE.BoxGeometry(.5,.28,.5), vDark, s*1.9,3.78,2.6);
+  });
+  B(new THREE.BoxGeometry(4.2,.16,6.0), vDark, 0,3.94,.2);          // roof rack
+  B(new THREE.BoxGeometry(3.6,.14,.5), vB, 0,4.06,-2.5);
+  B(new THREE.BoxGeometry(4.3,.34,.14), vA, 0,2.3,4.82);            // tail bar
+  B(new THREE.BoxGeometry(3.6,.12,.16), vTailIn, 0,2.3,4.85);
+  [[-1.5],[1.5]].forEach(([x])=> B(new THREE.BoxGeometry(1.0,.34,.16), vB, x,1.0,-5.25));
+  B(new THREE.BoxGeometry(4.4,.4,.5), vDark, 0,.6,4.8);             // rear bumper
+  addWheel(g,rig,-2.2,.92,-3.2,.94,.6,1,8);
+  addWheel(g,rig, 2.2,.92,-3.2,.94,.6,1,8);
+  addWheel(g,rig,-2.2,.92,3.4,.94,.6,0,8);
+  addWheel(g,rig, 2.2,.92,3.4,.94,.6,0,8);
+  addFlame(g,rig,-1.4,.7,4.9,.44,3.0);
+  addFlame(g,rig, 1.4,.7,4.9,.44,3.0);
+  addTailGlow(g,rig,2.3,5.0,6.8,2.8);
+}
+
+function buildBike(g, rig){
+  const B=(geo,mat,x,y,z,rx,ry,rz)=>{ const m=new THREE.Mesh(geo,mat);
+    m.position.set(x,y,z); if(rx)m.rotation.x=rx; if(ry)m.rotation.y=ry; if(rz)m.rotation.z=rz; g.add(m); return m; };
+  B(new THREE.BoxGeometry(.7,.5,5.4), vDark, 0,1.5,0);              // spine
+  B(wedge(1.05,.95,2.6,.5,.6,.3), vPaint, 0,1.85,-.8);              // tank
+  B(new THREE.BoxGeometry(.9,.1,1.6), vA, 0,2.32,-.9);              // tank stripe
+  B(new THREE.BoxGeometry(1.0,.3,1.5), vDark, 0,2.0,1.1);           // seat
+  B(wedge(1.1,.8,1.9,.35,.5,.3), vPanel, 0,2.0,2.2);                // tail unit
+  B(new THREE.BoxGeometry(.9,.18,.12), vA, 0,2.1,3.1);              // tail light
+  B(wedge(1.15,1.5,1.9,.42,.5,.4), vPanel, 0,1.6,-2.5, -.2);        // front fairing
+  B(new THREE.BoxGeometry(.8,.42,.24), vB, 0,2.05,-3.2, -.25);      // headlight
+  B(new THREE.BoxGeometry(.75,.4,.1), vGlass, 0,2.5,-2.85, -.5);    // screen
+  B(new THREE.BoxGeometry(2.0,.14,.14), vRim, 0,2.55,-2.1);         // bars
+  [[-1],[1]].forEach(([s])=>{
+    B(new THREE.BoxGeometry(.2,.2,1.7), vRim, s*.42,2.0,-2.5, .42); // forks
+    B(new THREE.BoxGeometry(.3,.34,.9), vDark, s*.6,1.1,.9);        // peg + rearset
+  });
+  B(new THREE.CylinderGeometry(.26,.3,2.0,10), vRim, 0,1.15,2.4, Math.PI/2);   // single can
+  // rider
+  B(new THREE.BoxGeometry(1.0,1.3,.72), vPanel, 0,3.0,.7, .3);      // torso
+  B(new THREE.BoxGeometry(.36,.12,.5), vA, 0,3.35,.35, .3);
+  B(new THREE.BoxGeometry(.78,.72,.8), vDark, 0,3.85,.1);           // helmet
+  B(new THREE.BoxGeometry(.7,.24,.16), vB, 0,3.88,-.3);             // visor
+  [[-1],[1]].forEach(([s])=>{
+    B(new THREE.BoxGeometry(.3,1.5,.3), vPanel, s*.62,2.9,-.7, -.7);// arms to bars
+    B(new THREE.BoxGeometry(.42,1.2,.5), vDark, s*.52,2.0,1.1, .5); // legs
+  });
+  addWheel(g,rig,0,1.02,-3.0,1.04,.42,1,10);
+  addWheel(g,rig,0,1.02, 2.9,1.04,.5,0,10);
+  addFlame(g,rig,0,1.15,3.4,.42,3.2);                               // one pipe, one flame
+  addTailGlow(g,rig,2.1,3.3,3.6,2.0);
+  rig.extraLean=0.34;                                               // bikes lean hard
+}
+
+function buildHover(g, rig){
+  const B=(geo,mat,x,y,z,rx,ry,rz)=>{ const m=new THREE.Mesh(geo,mat);
+    m.position.set(x,y,z); if(rx)m.rotation.x=rx; if(ry)m.rotation.y=ry; if(rz)m.rotation.z=rz; g.add(m); return m; };
+  const Y=1.25;                                                     // floats clear of the road
+  B(wedge(3.6,1.0,9.6,.22,.55,.8), vPaint, 0,Y+.9,0);               // dart hull
+  B(wedge(2.6,.5,4.0,.3,.5,.6), vPanel, 0,Y+1.5,-2.4, -.05);
+  B(wedge(2.2,.8,3.0,.4,.55,.7), vGlass, 0,Y+1.72,.2, -.06);        // canopy
+  B(new THREE.BoxGeometry(2.6,.08,.08), vB, 0,Y+1.9,-1.2, -.4);
+  [[-1],[1]].forEach(([s])=>{
+    B(wedge(2.4,.22,4.6,.3,1,1.2), vPanel, s*2.4,Y+.75,.6, 0,0,s*-.09);   // outriggers
+    B(new THREE.BoxGeometry(2.2,.07,.09), s>0?vA:vB, s*2.4,Y+.9,.4);
+    const nac=new THREE.Mesh(new THREE.CylinderGeometry(.82,.68,3.0,12), vPanel);
+    nac.rotation.x=Math.PI/2; nac.position.set(s*2.9,Y+.95,2.6); g.add(nac);
+    const ring=new THREE.Mesh(new THREE.TorusGeometry(.78,.11,8,20), s>0?vA:vB);
+    ring.position.set(s*2.9,Y+.95,4.05); g.add(ring);
+    const lift=new THREE.Mesh(new THREE.TorusGeometry(.95,.16,8,22), vB);
+    lift.rotation.x=-Math.PI/2; lift.position.set(s*2.5,Y-.55,-1.6); g.add(lift);   // lift discs
+  });
+  B(new THREE.BoxGeometry(3.0,.24,.12), vA, 0,Y+1.05,4.6);
+  B(new THREE.BoxGeometry(2.4,.09,.14), vTailIn, 0,Y+1.05,4.63);
+  [[-.9],[.9]].forEach(([x])=> B(wedge(.8,.14,.9,.3,.6,0), vB, x,Y+.75,-4.6));
+  addFlame(g,rig,-2.9,Y+.95,4.2,.66,4.4);
+  addFlame(g,rig, 2.9,Y+.95,4.2,.66,4.4);
+  addTailGlow(g,rig,Y+1.05,4.8,6.4,2.6);
+}
+
+/* ---- registry ---- */
+const VEHICLES=[
+  {id:'wedge',    icon:'▰', name:'NW-01 Wedge',   rarity:0, price:0,       build:buildWedge,
+   desc:'The one you started with. Sharp as a shard.'},
+  {id:'roadster', icon:'▱', name:'Sunstrip Roadster', rarity:0, price:1.5e4, build:buildRoadster,
+   desc:'Open top, roll hoops, side pipes.'},
+  {id:'muscle',   icon:'▬', name:'Boulevard V8',  rarity:1, price:1.2e5,   build:buildMuscle,
+   desc:'Slab sides, blower scoop, fat rear meats.'},
+  {id:'van',      icon:'▤', name:'Astral Shuttle',rarity:1, price:1.2e5,   build:buildVan,
+   desc:'Roof rack, curtains, questionable aerodynamics.'},
+  {id:'bike',     icon:'◭', name:'Tachyon Bike',  rarity:2, price:1.5e6,   build:buildBike,
+   desc:'Two wheels, one pipe, leans like it means it.'},
+  {id:'hover',    icon:'✦', name:'Vector Speeder',rarity:3, price:3.0e7,   build:buildHover,
+   desc:'No wheels. Twin nacelles. Barely legal.'},
+];
+VEHICLES.forEach(v=>{
+  const g=new THREE.Group();
+  const rig={frontWheels:[], wheelSpin:[], flames:[], tailGlow:null, extraLean:0};
+  v.build(g, rig);
+  g.visible=false; car.add(g);
+  v.g=g; v.rig=rig;
+});
+const vehicleOwned = i => !VEHICLES[i].price || !!game.vehicles[VEHICLES[i].id];
+function setVehicle(i){
+  if(!VEHICLES[i] || !vehicleOwned(i)) i=0;
+  game.vehicle=i;
+  VEHICLES.forEach((v,k)=>{ v.g.visible=(k===i); v.g.rotation.z=0; });   // clear any lean from the old body
+  const rig=VEHICLES[i].rig;
+  car.userData.frontWheels=rig.frontWheels;
+  car.userData.wheelSpin=rig.wheelSpin;
+  car.userData.flames=rig.flames;
+  car.userData.tailGlow=rig.tailGlow;
+  car.userData.rig=rig;
+}
+setVehicle(0);                       // default rig so the loop has wheels before load() runs
 
 /* ---------------- props: palms, pyramids, neon gates ---------------- */
 const RANGE=1500;
@@ -574,7 +814,7 @@ const CYCLE=12000;
 const Z_MTN=0, Z_TUN=1, Z_CITY=2;
 const TUN_A=4200, TUN_B=7400;      // tunnel window within a cycle
 const CITY_A=7400, CITY_B=11600;   // the city starts the instant the tunnel ends
-const FAR_HIDE=950;                // past this everything is 100% fog colour anyway
+const FAR_HIDE=1450;               // past this everything is 100% fog colour anyway
 const cycMod=s=>((s%CYCLE)+CYCLE)%CYCLE;
 function zoneOf(s){ const u=cycMod(s);
   return u<TUN_A? Z_MTN : u<TUN_B? Z_TUN : u<CITY_B? Z_CITY : Z_MTN; }
@@ -665,66 +905,481 @@ function tunFactor(s, win){
 }
 
 /* ---------------- city ----------------
-   Towers with per-face UV scaling, so window rows stay square on every
-   side and the roof stays a flat dark cap. One shared material. */
-const cityWinCanvas=document.createElement('canvas'); cityWinCanvas.width=cityWinCanvas.height=64;
+   Three tiers of towers: a street tier lining the road, a mid tier behind it,
+   and a far tier of huge silhouettes that carries the skyline out to the fog.
+   Windows are sized in world units and snapped to a whole number of tiles per
+   face, so they never get sliced at a corner. */
+const cityWinCanvas=document.createElement('canvas'); cityWinCanvas.width=cityWinCanvas.height=128;
 (function(){
   const g=cityWinCanvas.getContext('2d');
-  g.fillStyle='#04040a'; g.fillRect(0,0,64,64);
-  for(let ry=0;ry<8;ry++){
-    const floorLit=Math.random()<0.85;
-    for(let cx=0;cx<8;cx++){
-      if(floorLit && Math.random()<0.62) g.fillStyle='rgba(255,255,255,'+(0.45+Math.random()*0.55).toFixed(2)+')';
-      else g.fillStyle='#0a0a14';
-      g.fillRect(cx*8+2, ry*8+2, 5, 5);
+  g.fillStyle='#05050c'; g.fillRect(0,0,128,128);
+  const G=4, CELL=128/G;
+  for(let ry=0;ry<G;ry++){
+    const darkFloor=Math.random()<0.22;
+    g.fillStyle='#0a0a16'; g.fillRect(0, ry*CELL+CELL-4, 128, 4);   // floor band
+    for(let cx=0;cx<G;cx++){
+      if(!darkFloor && Math.random()<0.72)
+        g.fillStyle='rgba(255,255,255,'+(0.55+Math.random()*0.45).toFixed(2)+')';
+      else g.fillStyle='#0d0d1c';
+      g.fillRect(cx*CELL+5, ry*CELL+5, CELL-10, CELL-13);
     }
   }
 })();
 const cityTex=new THREE.CanvasTexture(cityWinCanvas);
 cityTex.wrapS=cityTex.wrapT=THREE.RepeatWrapping;
 cityTex.magFilter=THREE.NearestFilter; cityTex.minFilter=THREE.LinearMipMapLinearFilter;
-const cityMat=new THREE.MeshBasicMaterial({map:cityTex, color:0x9fb0e0, fog:true});
+const cityMat=new THREE.MeshBasicMaterial({map:cityTex, color:0x9fb0e0, fog:true, vertexColors:true});
 const cityCapMat=new THREE.MeshBasicMaterial({color:0xff2d95, fog:true});
-const CITY_RANGE=1500, UWIN=7, VWIN=9;   // world units per window tile
+const UWIN=13, VWIN=15;          // world units per 4x4 window tile -> ~3.3u windows
+
+/* Per-face UV scaling AND per-face shading. MeshBasic is unlit, so without
+   vertex colours every side of a box renders identically and the towers read
+   as flat cardboard. */
 function towerGeo(w,h,d){
   const g=new THREE.BoxGeometry(w,h,d);
-  const uv=g.attributes.uv;
-  const set=(i0,su,sv)=>{ for(let i=i0;i<i0+4;i++) uv.setXY(i, uv.getX(i)*su, uv.getY(i)*sv); };
-  set(0,  d/UWIN, h/VWIN);   // +X
-  set(4,  d/UWIN, h/VWIN);   // -X
-  set(8,  0.02, 0.02);       // +Y roof -> samples the dark corner texel
-  set(12, 0.02, 0.02);       // -Y
-  set(16, w/UWIN, h/VWIN);   // +Z
-  set(20, w/UWIN, h/VWIN);   // -Z
+  const uv=g.attributes.uv, col=[];
+  const ux=Math.max(1,Math.round(d/UWIN));   // +-X faces span the depth
+  const uz=Math.max(1,Math.round(w/UWIN));   // +-Z faces span the width
+  const vy=Math.max(2,Math.round(h/VWIN));
+  const face=(i0,su,sv,shade)=>{
+    for(let i=i0;i<i0+4;i++){ uv.setXY(i, uv.getX(i)*su, uv.getY(i)*sv); col.push(shade,shade,shade); }
+  };
+  face(0,  ux,vy, 1.00);      // +X — faces the street once rotated
+  face(4,  ux,vy, 1.00);      // -X
+  face(8,  .02,.02, 0.30);    // +Y roof -> dark corner texel (never seen, towers are tall)
+  face(12, .02,.02, 0.30);    // -Y
+  face(16, uz,vy, 0.66);      // +Z — shaded, so corners read as corners
+  face(20, uz,vy, 0.66);      // -Z
   uv.needsUpdate=true;
+  g.setAttribute('color', new THREE.Float32BufferAttribute(col,3));
   return g;
 }
+
+const TIER_RANGE=[2000,2400,2800];
 const buildings=[];
-for(let i=0;i<44;i++){
-  const w=16+Math.random()*24, d=16+Math.random()*22, h=45+Math.random()*165;
+function makeBuilding(tier){
+  let w,d,h;
+  if(tier===0){      w=16+Math.random()*24; d=16+Math.random()*22; h= 45+Math.random()*165; }
+  else if(tier===1){ w=28+Math.random()*34; d=26+Math.random()*30; h=120+Math.random()*200; }
+  else {             w=55+Math.random()*80; d=50+Math.random()*70; h=230+Math.random()*220; }
   const g=new THREE.Group();
   const tower=new THREE.Mesh(towerGeo(w,h,d), cityMat);
   tower.position.y=h/2; g.add(tower);
-  const cap=new THREE.Mesh(new THREE.BoxGeometry(w+1.8,1.2,d+1.8), cityCapMat);
-  cap.position.y=h+0.4; g.add(cap);
+  let top=h;
+  if(tier<2 && Math.random()<0.38){                       // stepped setback
+    const w2=w*(0.55+Math.random()*0.2), d2=d*(0.55+Math.random()*0.2), h2=h*(0.18+Math.random()*0.22);
+    const t2=new THREE.Mesh(towerGeo(w2,h2,d2), cityMat);
+    t2.position.y=h+h2/2; g.add(t2); top=h+h2;
+  }
+  if(tier===0 && Math.random()<0.6){                      // neon roofline
+    const cap=new THREE.Mesh(new THREE.BoxGeometry(w+1.6,0.9,d+1.6), cityCapMat);
+    cap.position.y=top+0.45; g.add(cap);
+  }
+  if(tier<2 && Math.random()<0.3){                        // mast + beacon
+    const mh=14+Math.random()*26;
+    const mast=new THREE.Mesh(new THREE.BoxGeometry(.9,mh,.9), cityCapMat);
+    mast.position.y=top+mh/2; g.add(mast);
+    top+=mh;
+  }
   g.visible=false; scene.add(g);
-  buildings.push({g, h, s:0, offset:0});
+  return {g, w, d, h:top, halfW:w/2+1.0, tier, range:TIER_RANGE[tier], s:0, offset:0, rot:0};
 }
+for(let i=0;i<52;i++) buildings.push(makeBuilding(0));
+for(let i=0;i<22;i++) buildings.push(makeBuilding(1));
+for(let i=0;i<18;i++) buildings.push(makeBuilding(2));
+
+/* Clear shoulder between the road edge and any wall. Must exceed the drivable
+   corridor: lateral maxes out at HALF+4 and the car's body reaches 2.5 past
+   that, so anything under ~6.5 lets you drive straight into a building. */
+const CITY_CLEAR=10;
 function placeBuilding(b, minS){
   let s=minS;
-  if(zoneOf(s)!==Z_CITY) s=zoneWindow(s,Z_CITY)[0] + Math.random()*CITY_RANGE;
+  if(zoneOf(s)!==Z_CITY) s=zoneWindow(s,Z_CITY)[0] + Math.random()*b.range;
   b.s=s;
-  b.offset=(Math.random()<.5?-1:1)*(HALF+8+Math.random()*44);
+  b.rot=-(roadX(s+3)-roadX(s-3))/6;                    // square up to the road tangent
+  const side=Math.random()<.5?-1:1;
+
+  if(b.tier>0){                                        // back tiers sit well clear already
+    const base=b.tier===1? HALF+70 : HALF+240;
+    const spread=b.tier===1? 140 : 420;
+    b.offset=side*(base+b.halfW+Math.random()*spread);
+    return;
+  }
+
+  // On the inside of a bend the road sweeps toward the building, so hand it
+  // roughly the distance the centreline cuts across over the next stretch.
+  const curv=(roadX(s+60)-2*roadX(s)+roadX(s-60))/3600;
+  const bendRoom=(Math.sign(curv)===side)? Math.min(26, Math.abs(curv)*20000) : 0;
+  const setback=Math.pow(Math.random(),1.7)*32 + bendRoom;
+
+  // Solve rather than guess: the rotated footprint spans a range of road
+  // distance and the centreline moves across it, so sample the real corners.
+  // Raising `off` lifts the worst gap ~1:1, so this converges in a pass or two.
+  const c=Math.cos(b.rot), sn=Math.sin(b.rot);
+  let off=HALF+CITY_CLEAR+b.halfW+setback;
+  for(let pass=0; pass<4; pass++){
+    let gap=Infinity;
+    for(const lx of [-b.halfW, b.halfW]) for(let k=-5;k<=5;k++){
+      const lz=k*b.d/10;
+      const wx=roadX(s)+side*off+lx*c+lz*sn;          // corner in world x
+      const ws=s+lx*sn-lz*c;                          // ...and its road distance
+      gap=Math.min(gap, side*(wx-roadX(ws))-HALF);
+    }
+    if(gap>=CITY_CLEAR-0.01) break;
+    off+=CITY_CLEAR-gap;
+  }
+  b.offset=side*off;
+  if(b.sign){                                   // turn the signage to face the street
+    b.sign.position.x=-side*(b.w/2+0.4);
+    b.sign.rotation.y=-side*Math.PI/2;
+  }
 }
-buildings.forEach(b=> placeBuilding(b, CITY_A+Math.random()*CITY_RANGE));
-function updateCity(dist){
+buildings.forEach(b=> placeBuilding(b, CITY_A+Math.random()*b.range));
+function updateCity(dist, viewFar){
   for(const b of buildings){
     let z=dist-b.s;
-    if(z>90){ placeBuilding(b, b.s+CITY_RANGE+Math.random()*160); z=dist-b.s; }
-    const vis = zoneOf(b.s)===Z_CITY && (b.s-dist)<FAR_HIDE && z<40;
+    const behind=b.d/2+80;
+    if(z>behind){ placeBuilding(b, b.s+b.range+Math.random()*160); z=dist-b.s; }
+    const vis = zoneOf(b.s)===Z_CITY && (b.s-dist)<viewFar && z<b.d/2+40;
     b.g.visible=vis;
-    if(vis) b.g.position.set(roadX(b.s)+b.offset, 0, z);
+    if(vis){ b.g.position.set(roadX(b.s)+b.offset, 0, z); b.g.rotation.y=b.rot; }
   }
+}
+/* how deep into the city we are — used to open the fog up so the skyline reads */
+function cityDepth(s){
+  const [A,B]=zoneWindow(s-60, Z_CITY);
+  if(s>B) return 0;
+  return Math.max(0,Math.min(1,(s-(A-1000))/1000)) * Math.max(0,Math.min(1,(B-s)/900));
+}
+
+/* ---------------- city furniture ----------------
+   What made the city read as "a road with buildings beside it" was that
+   nothing ever crossed over, above or under the car. These add pavement
+   underfoot, lamps leaning over the lane, and structures you drive beneath. */
+
+/* generic road-following strip, clamped to a zone window like the tunnel.
+   cross-section entries are [x, y, shade]; duplicate a point to get a hard
+   shading crease instead of a gradient. */
+function makeStrip(cs, mat){
+  const NC=cs.length, pos=new Float32Array(NSEC*NC*3), col=[], idx=[];
+  for(let i=0;i<NSEC;i++) for(let j=0;j<NC;j++){ const sh=cs[j][2]; col.push(sh,sh,sh); }
+  for(let i=0;i<NSEC-1;i++) for(let j=0;j<NC-1;j++){
+    const a=i*NC+j; idx.push(a,a+NC,a+1, a+1,a+NC,a+NC+1);
+  }
+  const geo=new THREE.BufferGeometry();
+  geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  geo.setAttribute('color',new THREE.Float32BufferAttribute(col,3));
+  geo.setIndex(idx);
+  const mesh=new THREE.Mesh(geo,mat); mesh.frustumCulled=false; mesh.visible=false; scene.add(mesh);
+  return {geo,mesh,cs,NC};
+}
+function updateStrip(st, dist, A, B, viewFar){
+  const show=(A-dist)<viewFar;
+  st.mesh.visible=show;
+  if(!show) return;
+  const p=st.geo.attributes.position.array;
+  for(let i=0;i<NSEC;i++){
+    const s=Math.min(B,Math.max(A, dist-(20-i*SEG)));
+    const x=roadX(s), z=dist-s;
+    for(let j=0;j<st.NC;j++){ const k=(i*st.NC+j)*3;
+      p[k]=st.cs[j][0]+x; p[k+1]=st.cs[j][1]; p[k+2]=z; }
+  }
+  st.geo.attributes.position.needsUpdate=true;
+}
+
+const CURB=HALF+3, WALK_OUT=HALF+13;         // gutter, then raised pavement
+const walkMat=new THREE.MeshBasicMaterial({color:0x2a2a3a, side:THREE.DoubleSide, fog:true, vertexColors:true});
+const walkL=makeStrip([[-WALK_OUT,.62,.85],[-CURB,.62,1.0],[-CURB,.62,.45],[-CURB,.08,.45]], walkMat);
+const walkR=makeStrip([[CURB,.08,.45],[CURB,.62,.45],[CURB,.62,1.0],[WALK_OUT,.62,.85]], walkMat);
+
+/* streetlights on alternating sides, arms leaning out over the lane */
+const poleMat=new THREE.MeshBasicMaterial({color:0x14141f, fog:true});
+const lampMat=new THREE.MeshBasicMaterial({color:0xffe9c0, fog:true});
+const LAMP_SPACING=50;
+const streetLights=[];
+for(let i=0;i<30;i++){
+  const g=new THREE.Group();
+  const pole=new THREE.Mesh(new THREE.BoxGeometry(.6,13,.6), poleMat); pole.position.y=6.5; g.add(pole);
+  const arm=new THREE.Mesh(new THREE.BoxGeometry(7,.4,.4), poleMat);  arm.position.set(-3.4,12.7,0); g.add(arm);
+  const head=new THREE.Mesh(new THREE.BoxGeometry(2.8,.6,1.2), lampMat); head.position.set(-6.6,12.3,0); g.add(head);
+  g.visible=false; scene.add(g); streetLights.push(g);
+}
+
+/* overpasses you drive under, and sky bridges strung between towers */
+const structMat=new THREE.MeshBasicMaterial({color:0x1c1c2b, fog:true});
+const OVERPASS_SPACING=430, SKYBRIDGE_SPACING=760;
+const overpasses=[], skyBridges=[];
+for(let i=0;i<5;i++){
+  const g=new THREE.Group();
+  const deck=new THREE.Mesh(new THREE.BoxGeometry(HALF*2+96,3.2,16), structMat); deck.position.y=19; g.add(deck);
+  [-1,1].forEach(sd=>{
+    const rail=new THREE.Mesh(new THREE.BoxGeometry(HALF*2+96,1.1,.6), cityCapMat);
+    rail.position.set(0,21.2,sd*7.9); g.add(rail);
+    const pil=new THREE.Mesh(new THREE.BoxGeometry(5.5,19,10), structMat);
+    pil.position.set(sd*(HALF+11),9.5,0); g.add(pil);
+  });
+  const under=new THREE.Mesh(new THREE.BoxGeometry(HALF*2,.45,1.4), lampMat);
+  under.position.y=17.2; g.add(under);
+  g.visible=false; scene.add(g); overpasses.push(g);
+}
+for(let i=0;i<3;i++){
+  const g=new THREE.Group();
+  const deck=new THREE.Mesh(new THREE.BoxGeometry(HALF*2+60,2.2,8), structMat); deck.position.y=0; g.add(deck);
+  [-1,1].forEach(sd=>{
+    const edge=new THREE.Mesh(new THREE.BoxGeometry(HALF*2+60,.5,.5), cityCapMat);
+    edge.position.set(0,1.2,sd*4.1); g.add(edge);
+  });
+  g.visible=false; scene.add(g); skyBridges.push(g);
+}
+
+/* neon signage on the building faces that front the street */
+const signTex=[];
+for(let t=0;t<5;t++){
+  const cv=document.createElement('canvas'); cv.width=128; cv.height=64;
+  const g=cv.getContext('2d');
+  g.strokeStyle='#fff'; g.lineWidth=4; g.strokeRect(5,5,118,54);
+  for(let i=0;i<3+Math.floor(Math.random()*4);i++){
+    g.fillStyle='rgba(255,255,255,'+(0.5+Math.random()*0.5).toFixed(2)+')';
+    if(Math.random()<0.35){
+      g.beginPath(); g.arc(20+Math.random()*88, 32, 5+Math.random()*9, 0, Math.PI*2); g.fill();
+    } else {
+      g.fillRect(16+Math.random()*80, 14+Math.random()*28, 6+Math.random()*22, 5+Math.random()*13);
+    }
+  }
+  const tx=new THREE.CanvasTexture(cv); tx.magFilter=THREE.NearestFilter; signTex.push(tx);
+}
+const signMats=signTex.map(tx=> new THREE.MeshBasicMaterial({map:tx, color:0xff2d95, transparent:true,
+  blending:THREE.AdditiveBlending, depthWrite:false, side:THREE.DoubleSide, fog:true}));
+/* the street-facing facade is the +-X one (width w runs away from the road,
+   depth d runs along it), so a sign spans d and hangs off the X face */
+buildings.forEach(b=>{
+  if(b.tier===0 && Math.random()<0.45){
+    const m=new THREE.Mesh(new THREE.PlaneGeometry(b.d*0.8, Math.min(b.h*0.3, 24)),
+                           signMats[Math.floor(Math.random()*signMats.length)]);
+    m.position.y=b.h*0.55; b.g.add(m); b.sign=m;
+    const side=Math.sign(b.offset)||1;     // already placed above, so orient it now
+    m.position.x=-side*(b.w/2+0.4);
+    m.rotation.y=-side*Math.PI/2;
+  }
+});
+
+/* deterministic placement: fixed world positions inside the city window, so
+   nothing recycles and nothing can drift or double up */
+function placeAlong(pool, dist, A, B, spacing, viewFar, y, fn){
+  const k0=Math.ceil((dist-45-A)/spacing);
+  for(let i=0;i<pool.length;i++){
+    const k=k0+i, s=A+k*spacing, g=pool[i];
+    const vis = s>A+40 && s<B-40 && (s-dist)<viewFar && (dist-s)<60;
+    g.visible=vis;
+    if(vis){ g.position.set(roadX(s), y, dist-s); if(fn) fn(g,k,s); }
+  }
+}
+function updateCityFurniture(dist, viewFar){
+  const [A,B]=zoneWindow(dist-60, Z_CITY);
+  updateStrip(walkL, dist, A, B, viewFar);
+  updateStrip(walkR, dist, A, B, viewFar);
+  placeAlong(streetLights, dist, A, B, LAMP_SPACING, viewFar, 0, (g,k)=>{
+    const side=(k%2===0)?1:-1;
+    g.position.x+=side*(HALF+6.5);
+    g.rotation.y=side>0?0:Math.PI;      // swing the arm out over the road
+  });
+  placeAlong(overpasses, dist, A, B, OVERPASS_SPACING, viewFar, 0, null);
+  placeAlong(skyBridges, dist, A, B, SKYBRIDGE_SPACING, viewFar, 0, (g,k)=>{
+    g.position.y = 44 + (k%3)*11;
+  });
+}
+
+/* ---------------- hitchhikers + drop-off zones ----------------
+   Thumbs out on the mountain highway; pads waiting in the city. Pull off the
+   tarmac into someone, carry them through the tunnel, drop them downtown. */
+const hikeBodyMat=new THREE.MeshLambertMaterial({color:0x2a2438});
+const hikeSkinMat=new THREE.MeshLambertMaterial({color:0xd8a882});
+const hikeBagMat =new THREE.MeshLambertMaterial({color:0x4a3a22});
+const hikeLegMat =new THREE.MeshLambertMaterial({color:0x1b1828});
+const hikeTrimMat=new THREE.MeshBasicMaterial({color:0x29f3ff});      // neon jacket piping
+const hikeDarkMat=new THREE.MeshLambertMaterial({color:0x0d0b16});    // boots, visor, straps
+const hikePinMat =new THREE.MeshBasicMaterial({color:0xff2d95, transparent:true, opacity:.9, fog:true});
+const dropPadMat =new THREE.MeshBasicMaterial({color:0x29f3ff, transparent:true, opacity:.35, fog:true});
+const dropRingMat=new THREE.MeshBasicMaterial({color:0x29f3ff, fog:true});
+const dropBeamMat=new THREE.MeshBasicMaterial({color:0x29f3ff, transparent:true, opacity:.16,
+  blending:THREE.AdditiveBlending, depthWrite:false, side:THREE.DoubleSide, fog:true});
+/* the prime pad — same palette, opposite accent, so it reads at a glance */
+const primePadMat =new THREE.MeshBasicMaterial({color:0xff2d95, transparent:true, opacity:.42, fog:true});
+const primeRingMat=new THREE.MeshBasicMaterial({color:0xff2d95, fog:true});
+const primeBeamMat=new THREE.MeshBasicMaterial({color:0xff2d95, transparent:true, opacity:.22,
+  blending:THREE.AdditiveBlending, depthWrite:false, side:THREE.DoubleSide, fog:true});
+
+let passenger=false;
+/* A fare is worth a fixed slice of whatever you currently earn per second, so
+   it stays meaningful from the first billboard to an orbital relay. */
+const FARE_SECONDS=40, FARE_MIN=300, BONUS_MULT=2.5;
+function fareValue(){
+  const perSec = engineTop()*EARN_PER_UNIT*earnMult() + passiveRate();
+  return Math.max(FARE_MIN, perSec*FARE_SECONDS);
+}
+
+const HIKERS=2, DROPS=2;          // rare encounters, not a conveyor belt
+const hikers=[], drops=[];
+/* ~6 units tall — nearly three times the car's body height, so a lone figure
+   still reads on the shoulder at 600 km/h. Thumb arm is on +X; placeHiker
+   spins the whole figure so it always points at the road. */
+const PIN_Y=8.6;
+function makeHiker(){
+  const g=new THREE.Group();
+  const box=(w,h,d,mat,x,y,z)=>{
+    const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d), mat);
+    m.position.set(x,y,z); g.add(m); return m;
+  };
+  // legs + boots
+  [-0.44,0.44].forEach(x=>{
+    box(.6,.42,1.15, hikeDarkMat, x, .21, .12);          // boot
+    box(.56,2.1,.62, hikeLegMat,  x, 1.47, 0);           // trouser
+  });
+  box(1.5,.36,.86, hikeDarkMat, 0, 2.65, 0);             // belt
+  // torso
+  box(1.72,1.85,.94, hikeBodyMat, 0, 3.72, 0);           // jacket
+  box(1.9,.34,.98,  hikeBodyMat, 0, 4.55, 0);            // shoulders
+  box(1.5,.1,.06,   hikeTrimMat, 0, 3.95, .5);           // neon chest piping
+  box(.09,.9,.06,   hikeTrimMat, .62, 3.5, .5);
+  [-.34,.34].forEach(x=> box(.16,1.8,.1, hikeDarkMat, x, 3.75, .5));   // pack straps
+  // head
+  box(.42,.4,.42,  hikeSkinMat, 0, 4.92, 0);             // neck
+  box(.92,.9,.88,  hikeSkinMat, 0, 5.55, 0);             // head
+  box(.96,.3,.2,   hikeDarkMat, 0, 5.62, .38);           // visor
+  box(1.0,.26,.94, hikeDarkMat, 0, 6.02, 0);             // cap
+  // backpack
+  box(1.15,1.5,.62, hikeBagMat, 0, 3.85, -.72);
+  box(1.2,.22,.66,  hikeDarkMat, 0, 3.3, -.74);
+  // free arm, hanging
+  box(.38,1.7,.42, hikeBodyMat, -1.02, 3.75, 0);
+  box(.36,.42,.4,  hikeSkinMat, -1.02, 2.78, 0);
+  // thumbing arm: out toward the road, fist up
+  const arm=new THREE.Group(); arm.position.set(.92,4.42,0); arm.rotation.z=.22; g.add(arm);
+  const put=(w,h,d,mat,x,y)=>{ const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat); m.position.set(x,y,0); arm.add(m); };
+  put(1.05,.42,.44, hikeBodyMat, .52, 0);                // upper arm, sleeved
+  put(1.15,.38,.4,  hikeSkinMat, 1.62, 0);               // forearm
+  put(.5,.5,.5,     hikeSkinMat, 2.4, .06);              // fist
+  put(.24,.56,.26,  hikeSkinMat, 2.46, .48);             // thumb up
+  // beacon
+  const pin=new THREE.Mesh(new THREE.ConeGeometry(1.0,2.4,6), hikePinMat);
+  pin.position.y=PIN_Y; pin.rotation.x=Math.PI; g.add(pin);
+  g.visible=false; scene.add(g);
+  return {g, pin};
+}
+for(let i=0;i<HIKERS;i++){
+  const {g,pin}=makeHiker();
+  hikers.push({g, pin, s:0, lat:0, face:0, active:false});
+}
+/* exactly one pad is prime; which one is re-drawn each time the pads move to a
+   fresh city, so it is not tied to a pool index or to road order */
+function assignPrime(){
+  // Weighted toward the pads further down the road, so claiming the bonus
+  // usually means passing up a nearer, ordinary pad rather than luck.
+  const order=drops.slice().sort((a,b)=>a.s-b.s);      // nearest first
+  const w=order.map((_,i)=>1+i*3);                     // 2 pads -> 25% near / 75% far
+  let r=Math.random()*w.reduce((a,b)=>a+b,0), k=0;
+  while(k<w.length-1 && r>w[k]){ r-=w[k]; k++; }
+  drops.forEach(d=> d.prime=false);
+  order[k].prime=true;
+}
+for(let i=0;i<DROPS;i++){
+  const g=new THREE.Group();
+  const pad=new THREE.Mesh(new THREE.BoxGeometry(11,.2,11), dropPadMat); pad.position.y=.3; g.add(pad);
+  const ring=new THREE.Mesh(new THREE.TorusGeometry(5,.26,8,26), dropRingMat);
+  ring.rotation.x=-Math.PI/2; ring.position.y=.5; g.add(ring);
+  const beam=new THREE.Mesh(new THREE.CylinderGeometry(4.4,4.4,60,14,1,true), dropBeamMat);
+  beam.position.y=30; g.add(beam);
+  g.visible=false; scene.add(g);
+  drops.push({g, pad, ring, beam, i, s:0, lat:0});
+}
+
+function placeHiker(h, minS){
+  let s=minS+2400+Math.random()*3000;
+  if(zoneOf(s)!==Z_MTN) s=zoneWindow(s,Z_MTN)[0]+400+Math.random()*3200;
+  h.s=s;
+  const side=Math.random()<.5?-1:1;
+  h.lat=side*(HALF+2.2+Math.random()*1.3);       // just past the tarmac: you must pull off
+  h.face=side>0? Math.PI : 0;                    // spin so the thumb always points at the road
+  h.g.scale.setScalar(0.94+Math.random()*0.16);  // not everyone is the same size
+  h.active=true;
+}
+function placeDrop(d, minS){
+  let s=minS+1200+Math.random()*1500, fresh=false;
+  if(zoneOf(s)!==Z_CITY){ s=zoneWindow(s,Z_CITY)[0]+300+Math.random()*3200; fresh=true; }
+  d.s=s;
+  d.lat=(Math.random()<.5?-1:1)*(HALF-3.5);      // a bay in the outer lane, inside the kerbs
+  if(fresh) assignPrime();                       // new city ahead -> re-draw the prime pad
+}
+hikers.forEach((h,i)=>placeHiker(h, i*2800));
+drops.forEach(d=>placeDrop(d, CITY_A+Math.random()*2600));
+assignPrime();
+
+function updateRides(dist, viewFar, t){
+  // --- hitchhikers ---
+  let nearest=Infinity;
+  for(const h of hikers){
+    if(!h.active || dist-h.s>40) placeHiker(h, Math.max(dist, h.s));
+    const z=dist-h.s;
+    const vis = zoneOf(h.s)===Z_MTN && (h.s-dist)<viewFar && z<30;
+    h.g.visible=vis;
+    if(vis){
+      h.g.position.set(roadX(h.s)+h.lat, 0, z);
+      h.g.rotation.y=-(roadX(h.s+3)-roadX(h.s-3))/6 + h.face;
+      h.pin.position.y=PIN_Y+Math.sin(t*3)*0.4;
+      h.pin.rotation.y=t*1.6;
+      if(!passenger && h.s-dist>-20) nearest=Math.min(nearest, h.s-(dist+8));
+    }
+    if(h.active && !passenger && Math.abs(dist+8-h.s)<9 && Math.abs(lateral-h.lat)<2.8){
+      h.active=false; h.g.visible=false; pickUp();
+    }
+  }
+  // --- drop-off pads ---
+  let nearestDrop=Infinity, nearestPrime=Infinity;
+  for(const d of drops){
+    if(dist-d.s>60) placeDrop(d, Math.max(dist, d.s));
+    const prime=d.prime;
+    d.pad.material  = prime? primePadMat  : dropPadMat;
+    d.ring.material = prime? primeRingMat : dropRingMat;
+    d.beam.material = prime? primeBeamMat : dropBeamMat;
+    const z=dist-d.s;
+    const vis = passenger && zoneOf(d.s)===Z_CITY && (d.s-dist)<viewFar && z<40;
+    d.g.visible=vis;
+    if(vis){
+      d.g.position.set(roadX(d.s)+d.lat, 0, z);
+      d.ring.rotation.z = prime? -t*2.1 : t*1.1;          // the prime pad spins faster
+      d.g.scale.setScalar(prime? 1.15+Math.sin(t*4)*0.05 : 1);
+      if(d.s-dist>-20){
+        nearestDrop=Math.min(nearestDrop, d.s-(dist+8));
+        if(prime) nearestPrime=Math.min(nearestPrime, d.s-(dist+8));
+      }
+      if(Math.abs(dist+8-d.s)<9 && Math.abs(lateral-d.lat)<6) dropOff(prime);
+    }
+  }
+  // --- prompt line ---
+  if(passenger){
+    const f=fareValue();
+    if(nearestPrime<Infinity)
+      fareEl.textContent='\u2605 PRIME DROP '+Math.round(nearestPrime)+'m  \u00B7  \u25C8'+fmtC(f*BONUS_MULT)+'  (x'+BONUS_MULT+')';
+    else if(nearestDrop<Infinity)
+      fareEl.textContent='\u25B8 DROP ZONE '+Math.round(nearestDrop)+'m  \u00B7  \u25C8'+fmtC(f);
+    else
+      fareEl.textContent='\u263A PASSENGER  \u00B7  \u25C8'+fmtC(f)+'  \u00B7  HEAD FOR THE CITY';
+    fareEl.style.opacity=1;
+  }else if(nearest<520){
+    fareEl.textContent='\u261A HITCHHIKER '+Math.round(nearest)+'m  \u00B7  PULL OFF THE ROAD';
+    fareEl.style.opacity=1;
+  }else fareEl.style.opacity=0;
+}
+function pickUp(){
+  passenger=true;
+  toast('PASSENGER ABOARD \u2014 \u2605 PRIME PAD PAYS x'+BONUS_MULT);
+}
+function dropOff(prime){
+  const fare=fareValue()*(prime? BONUS_MULT : 1);
+  game.credits+=fare; game.rides=(game.rides||0)+1;
+  passenger=false;
+  save();
+  toast(prime? 'PRIME DROP  \u25C8'+fmtC(fare)+'  (x'+BONUS_MULT+')' : 'FARE PAID  \u25C8'+fmtC(fare));
 }
 
 /* ---- palms / pyramids / gates belong to the mountains: when a recycled
@@ -750,6 +1405,23 @@ function mix(a,b,t){ const x=hx(a),y=hx(b);
   return hex([x[0]+(y[0]-x[0])*t, x[1]+(y[1]-x[1])*t, x[2]+(y[2]-x[2])*t]); }
 const lighten=(c,t)=>mix(c,'#ffffff',t), darken=(c,t)=>mix(c,'#000000',t);
 function rgba(c,a){ const x=hx(c); return 'rgba('+x[0]+','+x[1]+','+x[2]+','+a+')'; }
+/* rotate a colour's hue, for the animated premium palettes */
+function hueShift(c, deg){
+  const [r,g,b]=hx(c).map(v=>v/255);
+  const mx=Math.max(r,g,b), mn=Math.min(r,g,b), d=mx-mn, l=(mx+mn)/2;
+  const sat = d===0? 0 : d/(1-Math.abs(2*l-1));
+  let h=0;
+  if(d!==0){
+    if(mx===r) h=((g-b)/d)%6; else if(mx===g) h=(b-r)/d+2; else h=(r-g)/d+4;
+    h*=60; if(h<0) h+=360;
+  }
+  h=(h+deg)%360; if(h<0) h+=360;
+  const C=(1-Math.abs(2*l-1))*sat, X=C*(1-Math.abs((h/60)%2-1)), m=l-C/2;
+  let q;
+  if(h<60) q=[C,X,0]; else if(h<120) q=[X,C,0]; else if(h<180) q=[0,C,X];
+  else if(h<240) q=[0,X,C]; else if(h<300) q=[X,0,C]; else q=[C,0,X];
+  return hex([(q[0]+m)*255,(q[1]+m)*255,(q[2]+m)*255]);
+}
 
 const PALETTES=[
   {name:'Nightwave',           bg:'#0b0121', fog:'#46125e', primary:'#ff2d95', secondary:'#29f3ff', accent:'#7a1c8f', glow:'#ff7e5f'},
@@ -766,7 +1438,38 @@ const PALETTES=[
   {name:'Synthwave',           bg:'#170a2e', fog:'#2e1466', primary:'#b24bff', secondary:'#ff9d5c', accent:'#3a1466', glow:'#ff7eb0'},
   {name:'Ice',                 bg:'#060a12', fog:'#12263a', primary:'#8fdcff', secondary:'#ffffff', accent:'#2b6c9e', glow:'#bfeaff'},
   {name:'Blood Moon',          bg:'#0c0505', fog:'#240a0c', primary:'#c81e28', secondary:'#ff8a3d', accent:'#4a0a0e', glow:'#ff5a2a'},
+  /* ---- purchasable. rarity 0..3, `anim` returns per-frame palette overrides ---- */
+  {name:'Chrome Noir',   rarity:0, price:2.5e3, bg:'#0a0b0d', fog:'#1c2028', primary:'#c8d4e4', secondary:'#6f8296', accent:'#2b3340', glow:'#9fb4cc'},
+  {name:'Acid Rain',     rarity:0, price:2.5e3, bg:'#04100f', fog:'#0c2c2a', primary:'#9dff2f', secondary:'#3ff0d0', accent:'#0d4a44', glow:'#c8ff6a'},
+  {name:'Sakura',        rarity:0, price:2.5e3, bg:'#140510', fog:'#3a1030', primary:'#ff8ab8', secondary:'#ffe3ec', accent:'#6b1a4a', glow:'#ffb0cf'},
+  {name:'Oil Slick',     rarity:1, price:4.0e4, bg:'#060608', fog:'#141426', primary:'#7d5cff', secondary:'#2fe0c0', accent:'#241a52', glow:'#c05cff'},
+  {name:'Cyber Lime',    rarity:1, price:4.0e4, bg:'#070a05', fog:'#16240c', primary:'#c6ff1a', secondary:'#ff2fa0', accent:'#3a5208', glow:'#e8ff5c'},
+  {name:'Abyss',         rarity:1, price:4.0e4, bg:'#01060f', fog:'#06182e', primary:'#1ea0ff', secondary:'#5cf0ff', accent:'#062a52', glow:'#3ad0ff'},
+  {name:'Aurora',        rarity:2, price:9.0e5, bg:'#03120e', fog:'#0a2e28', primary:'#39ffa0', secondary:'#5ce0ff', accent:'#0a4a52', glow:'#8affd0',
+   anim:(p,t)=>({ primary:hueShift(p.primary,Math.sin(t*0.17)*52),
+                  secondary:hueShift(p.secondary,Math.sin(t*0.13+1.7)*46),
+                  glow:hueShift(p.glow,Math.sin(t*0.21)*40) })},
+  {name:'Chromatic',     rarity:2, price:9.0e5, bg:'#0a0612', fog:'#241546', primary:'#ff3d8b', secondary:'#3dd8ff', accent:'#4a1a6b', glow:'#ff8ad0',
+   anim:(p,t)=>{ const d=(t*26)%360; return { primary:hueShift(p.primary,d), secondary:hueShift(p.secondary,d+120),
+                  glow:hueShift(p.glow,d+60), accent:hueShift(p.accent,d) }; }},
+  {name:'Prism',         rarity:3, price:2.5e7, bg:'#060309', fog:'#1a0d33', primary:'#ff2fd0', secondary:'#2fffe0', accent:'#5a1a8a', glow:'#ffe03d',
+   anim:(p,t)=>{ const d=(t*64)%360; return { primary:hueShift(p.primary,d), secondary:hueShift(p.secondary,-d*1.4),
+                  glow:hueShift(p.glow,d*2.2), accent:hueShift(p.accent,d*0.7), fog:hueShift(p.fog,d) }; }},
+  {name:'Singularity',   rarity:3, price:2.5e7, bg:'#000000', fog:'#1c1408', primary:'#ffd24a', secondary:'#ffffff', accent:'#4a3608', glow:'#ffb020',
+   anim:(p,t)=>{ const b=(Math.sin(t*2.4)+1)/2; return { primary:lighten(hueShift(p.primary,Math.sin(t*0.5)*20), b*0.45),
+                  glow:lighten(p.glow, b*0.55), secondary:mix(p.secondary,p.primary,b*0.5),
+                  fog:mix(p.fog,'#3c2a10',b) }; }},
+  /* ---- secret: no price, never listed, redeemed with a code ---- */
+  {name:'Maize & Blue', rarity:4, secret:true, code:'victors',
+   bg:'#040a14', fog:'#00274c', primary:'#ffcb05', secondary:'#3a7fd5', accent:'#00274c', glow:'#ffdc5c'},
 ];
+const RARITY=['COMMON','RARE','EPIC','LEGENDARY','SECRET'];
+const themeOwned = i => (!PALETTES[i].price && !PALETTES[i].secret) || !!game.themes[PALETTES[i].name];
+/* animated palettes are re-expanded on a timer; static ones resolve to themselves */
+function paletteAt(i, t){
+  const p=PALETTES[i];
+  return p.anim? Object.assign({}, p, p.anim(p,t)) : p;
+}
 
 function expand(p){
   return {
@@ -802,6 +1505,11 @@ function expand(p){
     fireInner: lighten(mix(p.glow,p.secondary,.35), .5),
     cityWin: lighten(p.secondary,.12),
     cityCap: p.primary,
+    walk: mix(p.bg,p.secondary,.22),
+    hikeBody: mix(p.bg,p.accent,.5),
+    hikeBag: mix(p.accent,p.glow,.35),
+    struct: mix(p.bg,p.accent,.3),
+    lamp: lighten(p.glow,.35),
     tunnelWall: darken(mix(p.bg,p.accent,.25),.3),
     tunnelFace: darken(mix(p.bg,p.accent,.5),.12),
     tunnelLight: lighten(p.secondary,.3),
@@ -845,6 +1553,23 @@ function applyTheme(T){
   tunLightMat.color.set(T.tunnelLight);
   cityMat.color.set(T.cityWin);
   cityCapMat.color.set(T.cityCap);
+  walkMat.color.set(T.walk);
+  hikeBodyMat.color.set(T.hikeBody);
+  hikeBagMat.color.set(T.hikeBag);
+  hikeLegMat.color.set(T.carDark);
+  hikeDarkMat.color.set(T.gridBase);
+  hikeTrimMat.color.set(T.accentB);
+  hikePinMat.color.set(T.accentA);
+  dropPadMat.color.set(T.accentB);
+  dropRingMat.color.set(T.accentB);
+  dropBeamMat.color.set(T.accentB);
+  primePadMat.color.set(T.accentA);
+  primeRingMat.color.set(T.accentA);
+  primeBeamMat.color.set(T.accentA);
+  structMat.color.set(T.struct);
+  lampMat.color.set(T.lamp);
+  poleMat.color.set(T.carDark);
+  signMats.forEach(m=> m.color.set(T.accentA));
   CT.paintMat.color.set(T.carPaint);
   CT.panelMat.color.set(T.carPanel);
   CT.paintMat.specular.set(T.carSpec);
@@ -860,7 +1585,8 @@ function applyTheme(T){
   CT.under.color.set(T.glowA);
   CT.under2.color.set(T.glowB);
   CT.tailGlowMat.color.set(T.glowA);
-  CT.flames.forEach(fl=>{ fl.outer.material.color.set(T.fireOuter); fl.inner.material.color.set(T.fireInner); });
+  CT.flameO.color.set(T.fireOuter);
+  CT.flameI.color.set(T.fireInner);
   const rs=document.documentElement.style;
   rs.setProperty('--bg', T.sky[0]);
   rs.setProperty('--hud-a', T.accentA);
@@ -871,6 +1597,7 @@ function applyTheme(T){
 let queue=[ {p:0,m:0,s:20}, {p:1,m:0,s:20}, {p:4,m:0,s:20}, {p:11,m:0,s:20} ];
 let qIndex=0, qPlaying=false, segStart=performance.now();
 let fromTheme=expand(PALETTES[0]), toTheme=expand(PALETTES[0]), lastApplied=fromTheme, themeForce=true;
+let toIdx=0, animLast=0;   // palette index behind toTheme + animation throttle
 const TRANS=1.8;
 const easeIO=x=>x<.5? 2*x*x : 1-Math.pow(-2*x+2,2)/2;
 const segDur=q=>Math.max(1,(q.m|0)*60+(q.s|0));
@@ -881,13 +1608,20 @@ applyTheme(fromTheme);
 function startQueue(){
   if(!queue.length) return;
   qPlaying=true; qIndex=0; segStart=performance.now();
-  fromTheme=lastApplied; toTheme=expand(PALETTES[queue[0].p]); themeForce=true;
+  fromTheme=lastApplied; toIdx=queue[0].p; toTheme=expand(PALETTES[toIdx]); themeForce=true;
 }
 function previewPalette(i){
   qPlaying=false;
-  fromTheme=lastApplied; toTheme=expand(PALETTES[i]); segStart=performance.now(); themeForce=true;
+  fromTheme=lastApplied; toIdx=i; toTheme=expand(PALETTES[i]); segStart=performance.now(); themeForce=true;
 }
 function tickTheme(now){
+  // animated palettes re-expand on a ~16fps throttle; applyTheme redraws several
+  // canvases, so doing it every frame would be wasteful for a slow colour cycle
+  if(PALETTES[toIdx] && PALETTES[toIdx].anim && now-animLast>60){
+    animLast=now;
+    toTheme=expand(paletteAt(toIdx, now/1000));
+    themeForce=true;
+  }
   const seg=queue[qIndex]||queue[0];
   const dur=seg? segDur(seg):999;
   const el=(now-segStart)/1000;
@@ -911,7 +1645,7 @@ function tickTheme(now){
     let ni=qIndex+1;
     if(ni>=queue.length){ if(!qLoopEl.checked){ qPlaying=false; return; } ni=0; }
     qIndex=ni; segStart=now;
-    fromTheme=toTheme; toTheme=expand(PALETTES[queue[qIndex].p]); themeForce=true;
+    fromTheme=toTheme; toIdx=queue[qIndex].p; toTheme=expand(PALETTES[toIdx]); themeForce=true;
   }
 }
 
@@ -924,25 +1658,32 @@ const npEl=document.getElementById('nowPlaying');
 npEl.innerHTML='<span id="npName">queue idle</span> <span id="npTime"></span><div class="bar"><i id="npBar"></i></div>';
 const npName=document.getElementById('npName'), npTime=document.getElementById('npTime'), npBar=document.getElementById('npBar');
 let menuOpen=false;
-function toggleMenu(v){ menuOpen = v===undefined? !menuOpen : v; menuEl.hidden=!menuOpen; if(menuOpen) renderQueue(); }
+function toggleMenu(v){
+  menuOpen = v===undefined? !menuOpen : v; menuEl.hidden=!menuOpen;
+  if(menuOpen){ renderQueue(); togglePhone(false); }   // the two panels share screen space
+}
 document.getElementById('menuBtn').addEventListener('click',e=>{ e.stopPropagation(); toggleMenu(); });
 document.getElementById('menuClose').addEventListener('click',e=>{ e.stopPropagation(); toggleMenu(false); });
 menuEl.addEventListener('click',e=>{ e.stopPropagation(); if(e.target.tagName==='BUTTON') e.target.blur(); });
 menuEl.addEventListener('keydown',e=>e.stopPropagation());
 
-const OPTS=PALETTES.map((p,i)=>'<option value="'+i+'">'+p.name+'</option>').join('');
+const OPTS=()=>PALETTES.map((p,i)=>{
+  if(p.secret && !themeOwned(i)) return '';
+  return '<option value="'+i+'"'+(themeOwned(i)?'':' disabled')+'>'+
+         (themeOwned(i)?'':'\uD83D\uDD12 ')+p.name+'</option>';
+}).join('');
 function renderQueue(){
   listEl.innerHTML='';
   if(!queue.length){ listEl.innerHTML='<div style="opacity:.55;padding:6px 0">empty — add a step or tap a palette below</div>'; return; }
   queue.forEach((q,i)=>{
     const row=document.createElement('div'); row.className='qrow';
-    row.innerHTML='<select class="qp">'+OPTS+'</select>'+
+    row.innerHTML='<select class="qp">'+OPTS()+'</select>'+
       '<input class="qm" type="number" min="0" max="99" value="'+q.m+'">'+
       '<span>:</span><input class="qs" type="number" min="0" max="59" value="'+q.s+'">'+
       '<button class="mini qu">▲</button><button class="mini qd">▼</button><button class="mini qx">✕</button>';
     row.querySelector('.qp').value=q.p;
     row.querySelector('.qp').addEventListener('change',e=>{ q.p=+e.target.value;
-      if(qPlaying && i===qIndex){ toTheme=expand(PALETTES[q.p]); themeForce=true; }});
+      if(qPlaying && i===qIndex){ toIdx=q.p; toTheme=expand(PALETTES[toIdx]); themeForce=true; }});
     row.querySelector('.qm').addEventListener('change',e=>{ q.m=Math.max(0,Math.min(99,parseInt(e.target.value)||0)); e.target.value=q.m; });
     row.querySelector('.qs').addEventListener('change',e=>{ q.s=Math.max(0,Math.min(59,parseInt(e.target.value)||0)); e.target.value=q.s; });
     row.querySelector('.qu').addEventListener('click',()=>{ if(i>0){ const t=queue[i-1]; queue[i-1]=queue[i]; queue[i]=t; renderQueue(); }});
@@ -951,22 +1692,313 @@ function renderQueue(){
     listEl.appendChild(row);
   });
 }
-PALETTES.forEach((p,i)=>{
-  const b=document.createElement('button'); b.className='chip';
-  b.innerHTML='<span class="sw"><i style="background:'+p.bg+'"></i><i style="background:'+p.primary+
-    '"></i><i style="background:'+p.secondary+'"></i><i style="background:'+p.glow+'"></i></span>'+p.name;
-  let ct=null;
-  b.addEventListener('click',()=>{                 // single tap = queue it (deferred so a double-tap can cancel)
-    if(ct) return;
-    ct=setTimeout(()=>{ ct=null; queue.push({p:i,m:0,s:20}); renderQueue(); },220);
+function renderPalettes(){
+  gridEl.innerHTML='';
+  PALETTES.forEach((p,i)=>{
+    const own=themeOwned(i);
+    if(p.secret && !own) return;                     // stays hidden until redeemed
+    const b=document.createElement('button'); b.className='chip'+(own?'':' locked');
+    b.innerHTML='<span class="sw"><i style="background:'+p.bg+'"></i><i style="background:'+p.primary+
+      '"></i><i style="background:'+p.secondary+'"></i><i style="background:'+p.glow+'"></i></span>'+
+      (own? p.name : '\uD83D\uDD12 '+p.name);
+    if(!own){
+      b.addEventListener('click',()=>toast('LOCKED — BUY IT IN THE PHONE (P)'));
+    }else{
+      let ct=null;
+      b.addEventListener('click',()=>{               // single tap = queue it (deferred so a double-tap can cancel)
+        if(ct) return;
+        ct=setTimeout(()=>{ ct=null; queue.push({p:i,m:0,s:20}); renderQueue(); },220);
+      });
+      b.addEventListener('dblclick',()=>{ clearTimeout(ct); ct=null; previewPalette(i); });
+    }
+    gridEl.appendChild(b);
   });
-  b.addEventListener('dblclick',()=>{ clearTimeout(ct); ct=null; previewPalette(i); });
-  gridEl.appendChild(b);
-});
+}
+renderPalettes();
 document.getElementById('qAdd').addEventListener('click',()=>{ queue.push({p:0,m:0,s:20}); renderQueue(); });
 document.getElementById('qPlay').addEventListener('click',startQueue);
 document.getElementById('qStop').addEventListener('click',()=>{ qPlaying=false; });
 renderQueue();
+
+/* ================================================================
+   ECONOMY + PHONE — earn credits from distance, spend on speed or
+   on assets that pay out whether or not you're driving.
+   ================================================================ */
+const EARN_PER_UNIT=0.06;          // credits per world unit travelled
+const SAVE_KEY='nightwave.save.v1';
+
+const BOOST_CAP=100, BOOST_DRAIN=5, BOOST_REGEN=7.5;   // 20.0s of boost, 13.3s to refill
+const COOLANT_STEP=0.0375, CHARGER_STEP=0.07;          // per level; shared by the maths and the labels
+const ENGINE_TOP_STEP=10, ENGINE_CRUISE_STEP=6;        // engine lifts both the ceiling and the floor
+const UPGRADES=[
+  {id:'engine',  icon:'⚙', name:'Engine Block',  base:150, mult:1.60, max:20,
+   desc:l=>'+'+(l*ENGINE_TOP_STEP)+' top speed, +'+(l*ENGINE_CRUISE_STEP)+' off the gas'},
+  {id:'turbo',   icon:'🔥', name:'Turbo Coils',   base:400, mult:1.70, max:20,
+   desc:l=>'+'+(l*16)+' boost top speed'},
+  {id:'gearbox', icon:'⇅', name:'Gearbox',       base:250, mult:1.65, max:15,
+   desc:l=>'+'+(l*7)+' acceleration'},
+  {id:'odometer',icon:'◈', name:'Odometer Chip', base:300, mult:1.80, max:25,
+   desc:l=>'+'+(l*18)+'% credits per distance'},
+  {id:'coolant', icon:'❄', name:'Coolant Loop',  base:700, mult:1.75, max:10,
+   desc:l=>'boost runs '+(BOOST_CAP/(BOOST_DRAIN*(1-l*COOLANT_STEP))).toFixed(1)+'s before burnout'},
+  {id:'charger', icon:'⚡', name:'Fast Charger',  base:600, mult:1.78, max:8,
+   desc:l=>'recharges in '+(BOOST_CAP/(BOOST_REGEN*(1+l*CHARGER_STEP))).toFixed(1)+'s'},
+];
+const UP_BY={}; UPGRADES.forEach(u=>UP_BY[u.id]=u);   // by id, not index — indices drift
+const ASSETS=[
+  {id:'sign',    icon:'▮', name:'Neon Billboard', base:60,     rate:0.6,   desc:'Rents ad space on the strip.'},
+  {id:'garage',  icon:'▤', name:'Parking Garage', base:700,    rate:5,     desc:'Charges by the hour. Always full.'},
+  {id:'arcade',  icon:'◘', name:'Arcade Parlour', base:8000,   rate:38,    desc:'Tokens in, credits out.'},
+  {id:'data',    icon:'▦', name:'Data Haven',     base:95000,  rate:290,   desc:'Hums quietly. Prints money.'},
+  {id:'drone',   icon:'✦', name:'Ad Drone Swarm', base:1.1e6,  rate:2400,  desc:'Sky-writing over the skyline.'},
+  {id:'relay',   icon:'◎', name:'Orbital Relay',  base:1.4e7,  rate:21000, desc:'Beams ads down from low orbit.'},
+];
+
+const upLv  = u=> game.up[u.id]||0;
+const lvOf  = u=> Math.min(upLv(u), u.max);   // effects never exceed the cap, whatever a save holds
+const owned = a=> game.assets[a.id]||0;
+const upCost    = u=> u.base*Math.pow(u.mult, upLv(u));
+const assetCost = a=> a.base*Math.pow(1.15, owned(a));
+function passiveRate(){ let r=0; for(const a of ASSETS) r+=owned(a)*a.rate; return r; }
+
+function fmtC(n){
+  if(n<1000) return n<10? n.toFixed(1) : Math.floor(n).toString();
+  const u=['','K','M','B','T','Qa','Qi','Sx','Sp','Oc'];
+  let i=0; while(n>=1000 && i<u.length-1){ n/=1000; i++; }
+  return (n<10? n.toFixed(2) : n<100? n.toFixed(1) : Math.round(n))+u[i];
+}
+
+/* ---- persistence, with offline earnings from your assets ---- */
+function save(){
+  try{ localStorage.setItem(SAVE_KEY, JSON.stringify({
+    credits:game.credits, up:game.up, assets:game.assets, themes:game.themes, rides:game.rides||0,
+    vehicles:game.vehicles, vehicle:game.vehicle,
+    totalDist:game.totalDist, spent:game.spent, t:Date.now()
+  })); }catch(e){}
+}
+function load(){
+  let d=null;
+  try{ d=JSON.parse(localStorage.getItem(SAVE_KEY)||'null'); }catch(e){}
+  if(!d) return;
+  game.credits=+d.credits||0; game.up=d.up||{}; game.assets=d.assets||{}; game.themes=d.themes||{};
+  game.vehicles=d.vehicles||{}; game.vehicle=+d.vehicle||0;
+  game.totalDist=+d.totalDist||0; game.spent=+d.spent||0; game.rides=+d.rides||0;
+  UPGRADES.forEach(u=>{ if(game.up[u.id]>u.max) game.up[u.id]=u.max; });   // re-tuned caps
+  const away=Math.min((Date.now()-(d.t||Date.now()))/1000, 8*3600);   // cap at 8h
+  const earned=passiveRate()*away;
+  if(earned>1){
+    game.credits+=earned;
+    toast('ASSETS EARNED ◈'+fmtC(earned)+' WHILE AWAY');
+  }
+}
+let toastT=null;
+function toast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('on');
+  clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove('on'), 4200);
+}
+load();
+/* the palette grid and queue dropdowns were built before the save was read,
+   so anything unlocked in a previous session has to be re-rendered now */
+renderPalettes();
+renderQueue();
+setVehicle(game.vehicle);            // restore the ride the save was using
+setInterval(save, 5000);
+addEventListener('beforeunload', save);
+
+/* ---- phone UI ---- */
+const phoneEl=document.getElementById('phone');
+const pScreen=document.getElementById('pScreen');
+const pCred=document.getElementById('pCred'), pRate=document.getElementById('pRate');
+const pClock=document.getElementById('pClock');
+let phoneOpen=false, phoneTab='garage';
+const buyBtns=[];                  // {el, cost} refreshed for affordability
+
+function togglePhone(v){
+  phoneOpen = v===undefined? !phoneOpen : v;
+  phoneEl.classList.toggle('open', phoneOpen);
+  if(phoneOpen){ renderPhone(); toggleMenu(false); }   // ...so only one is ever up
+}
+document.getElementById('phoneBtn').addEventListener('click',e=>{ e.stopPropagation(); e.target.blur(); togglePhone(); });
+phoneEl.addEventListener('click',e=>{ e.stopPropagation(); if(e.target.tagName==='BUTTON') e.target.blur(); });
+document.querySelectorAll('.pTabs button').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.pTabs button').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on'); phoneTab=b.dataset.tab; renderPhone();
+  });
+});
+
+function row(icon, title, sub, meta, cost, maxed, onBuy){
+  const d=document.createElement('div'); d.className='pRow'+(maxed?' max':'');
+  d.innerHTML='<div class="pIcon">'+icon+'</div><div class="pInfo"><b></b><span></span><i></i></div>';
+  d.querySelector('b').textContent=title;
+  d.querySelector('span').textContent=sub;
+  d.querySelector('i').textContent=meta;
+  const btn=document.createElement('button'); btn.className='pBuy';
+  btn.textContent = maxed? 'MAX' : '◈'+fmtC(cost);
+  if(!maxed){
+    btn.addEventListener('click',()=>{ onBuy(); });
+    buyBtns.push({el:btn, cost});
+  } else btn.classList.add('no');
+  d.appendChild(btn);
+  return d;
+}
+function renderPhone(){
+  buyBtns.length=0;
+  pScreen.innerHTML='';
+  if(phoneTab==='garage'){
+    for(const u of UPGRADES){
+      const lv=upLv(u), maxed=lv>=u.max;
+      pScreen.appendChild(row(u.icon, u.name, u.desc(lv+(maxed?0:1)),
+        'LV '+lv+' / '+u.max, upCost(u), maxed, ()=>buyUpgrade(u)));
+    }
+  } else if(phoneTab==='rides'){
+    VEHICLES.forEach((v,i)=>{
+      const own=vehicleOwned(i), active=(game.vehicle===i);
+      const d=document.createElement('div'); d.className='pRow'+(own?' owned':'');
+      d.innerHTML='<div class="pIcon"></div><div class="pInfo"><b></b><span></span><i class="tR'+v.rarity+'"></i></div>';
+      d.querySelector('.pIcon').textContent=v.icon;
+      d.querySelector('b').textContent=v.name;
+      d.querySelector('span').textContent=v.desc;
+      d.querySelector('i').textContent=RARITY[v.rarity]+(v.price?'':'  ·  INCLUDED');
+      const btn=document.createElement('button'); btn.className='pBuy';
+      if(active){ btn.textContent='ACTIVE'; btn.classList.add('no'); }
+      else if(own){ btn.textContent='DRIVE'; btn.addEventListener('click',()=>{ setVehicle(i); save(); renderPhone(); }); }
+      else{
+        btn.textContent='◈'+fmtC(v.price);
+        btn.addEventListener('click',()=>buyVehicle(i));
+        buyBtns.push({el:btn, cost:v.price});
+      }
+      d.appendChild(btn); pScreen.appendChild(d);
+    });
+  } else if(phoneTab==='themes'){
+    PALETTES.forEach((p,i)=>{
+      const own=themeOwned(i);
+      if(!p.price && !p.secret) return;                     // the base palettes are free
+      if(p.secret && !own) return;                          // nothing to advertise
+      const d=document.createElement('div'); d.className='pRow'+(own?' owned':'');
+      d.innerHTML='<div class="pInfo"><b></b><span class="tSw">'+
+        ['bg','primary','secondary','glow'].map(k=>'<i style="background:'+p[k]+'"></i>').join('')+
+        '</span><i class="tR'+p.rarity+'"></i></div>';
+      d.querySelector('b').textContent=p.name;
+      d.querySelector('i').textContent=RARITY[p.rarity]+(p.anim?'  ·  ANIMATED':'');
+      const btn=document.createElement('button'); btn.className='pBuy';
+      if(own){ btn.textContent='OWNED'; btn.classList.add('no'); }
+      else{
+        btn.textContent='◈'+fmtC(p.price);
+        btn.addEventListener('click',()=>buyTheme(i));
+        buyBtns.push({el:btn, cost:p.price});
+      }
+      d.appendChild(btn); pScreen.appendChild(d);
+    });
+    const box=document.createElement('div'); box.className='pCode';
+    box.innerHTML='<small>REDEEM CODE</small><div>'+
+      '<input id="pCodeIn" type="text" placeholder="enter code" maxlength="24" autocomplete="off" spellcheck="false">'+
+      '<button id="pCodeGo">GO</button></div>';
+    pScreen.appendChild(box);
+    document.getElementById('pCodeGo').addEventListener('click', redeem);
+    document.getElementById('pCodeIn').addEventListener('keydown', e=>{ if(e.key==='Enter') redeem(); });
+  } else if(phoneTab==='assets'){
+    for(const a of ASSETS){
+      const n=owned(a);
+      pScreen.appendChild(row(a.icon, a.name, a.desc,
+        'OWNED '+n+'  ·  ◈'+fmtC(a.rate)+'/s each', assetCost(a), false, ()=>buyAsset(a)));
+    }
+  } else {
+    const rows=[
+      ['Distance driven', fmtC(game.totalDist)+' u'],
+      ['Passive income',  '◈'+fmtC(passiveRate())+' / sec'],
+      ['Per distance',    '◈'+(EARN_PER_UNIT*earnMult()).toFixed(3)+' / u'],
+      ['Top speed',       Math.round(boostTop()*1.6)+' km/h'],
+      ['Cruise speed',    Math.round(cruiseTop()*1.6)+' km/h'],
+      ['Boost duration',  (BOOST_CAP/boostDrain()).toFixed(1)+' s'],
+      ['Boost recharge',  (BOOST_CAP/boostRegen()).toFixed(1)+' s'],
+      ['Vehicle',         VEHICLES[game.vehicle].name],
+      ['Assets owned',    ASSETS.reduce((t,a)=>t+owned(a),0)],
+      ['Fares delivered', game.rides||0],
+      ['Fare value',      '◈'+fmtC(fareValue())+'  (prime ◈'+fmtC(fareValue()*BONUS_MULT)+')'],
+      ['Total spent',     '◈'+fmtC(game.spent)],
+    ];
+    for(const [k,v] of rows){
+      const d=document.createElement('div'); d.className='pStat';
+      d.innerHTML='<span></span><span></span>';
+      d.children[0].textContent=k; d.children[1].textContent=v;
+      pScreen.appendChild(d);
+    }
+  }
+  refreshAfford();
+}
+function refreshAfford(){
+  for(const b of buyBtns) b.el.classList.toggle('no', game.credits < b.cost);
+}
+function buyUpgrade(u){
+  const c=upCost(u);
+  if(upLv(u)>=u.max || game.credits<c) return;
+  game.credits-=c; game.spent+=c; game.up[u.id]=upLv(u)+1;
+  save(); renderPhone();
+}
+function buyTheme(i){
+  const p=PALETTES[i];
+  if(themeOwned(i) || game.credits<p.price) return;
+  game.credits-=p.price; game.spent+=p.price; game.themes[p.name]=1;
+  save(); renderPhone(); renderPalettes(); renderQueue();
+  toast('UNLOCKED — '+p.name.toUpperCase());
+}
+function buyVehicle(i){
+  const v=VEHICLES[i];
+  if(vehicleOwned(i) || game.credits<v.price) return;
+  game.credits-=v.price; game.spent+=v.price; game.vehicles[v.id]=1;
+  setVehicle(i); save(); renderPhone();
+  toast('UNLOCKED — '+v.name.toUpperCase());
+}
+function redeem(){
+  const el=document.getElementById('pCodeIn');
+  const v=(el.value||'').trim().toLowerCase().replace(/[^a-z0-9]/g,'');
+  el.value='';
+  if(!v) return;
+  const i=PALETTES.findIndex(p=>p.code===v);
+  if(i<0){ toast('INVALID CODE'); return; }
+  if(themeOwned(i)){ toast('ALREADY UNLOCKED'); return; }
+  game.themes[PALETTES[i].name]=1;
+  save(); renderPhone(); renderPalettes(); renderQueue();
+  toast('SECRET UNLOCKED \u2014 '+PALETTES[i].name.toUpperCase());
+  previewPalette(i);                       // show it off straight away
+}
+function buyAsset(a){
+  const c=assetCost(a);
+  if(game.credits<c) return;
+  game.credits-=c; game.spent+=c; game.assets[a.id]=owned(a)+1;
+  save(); renderPhone();
+}
+
+/* ---- upgrade effects, read by the driving loop ---- */
+const engineTop  = ()=> 215 + lvOf(UP_BY.engine)*ENGINE_TOP_STEP;
+const cruiseTop  = ()=> 95  + lvOf(UP_BY.engine)*ENGINE_CRUISE_STEP;   // coasting speed, no W held
+const boostTop   = ()=> 310 + lvOf(UP_BY.turbo)*16;
+const accelRate  = ()=> 55  + lvOf(UP_BY.gearbox)*7;
+const earnMult   = ()=> 1 + lvOf(UP_BY.odometer)*0.18;
+const boostDrain = ()=> BOOST_DRAIN*(1 - lvOf(UP_BY.coolant)*COOLANT_STEP);
+const boostRegen = ()=> BOOST_REGEN*(1 + lvOf(UP_BY.charger)*CHARGER_STEP);
+
+const moneyEl=document.getElementById('money');
+let hudT=0;
+function tickEconomy(dt, speed){
+  const moved=speed*dt;
+  game.totalDist+=moved;
+  game.credits += moved*EARN_PER_UNIT*earnMult() + passiveRate()*dt;
+  hudT+=dt;
+  if(hudT>0.1){
+    hudT=0;
+    moneyEl.textContent='◈ '+fmtC(game.credits);
+    if(phoneOpen){
+      pCred.textContent=fmtC(game.credits);
+      pRate.textContent='+'+fmtC(passiveRate())+' / sec passive';
+      const d=new Date();
+      pClock.textContent=('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2);
+      refreshAfford();
+    }
+  }
+}
 
 /* ---------------- input ---------------- */
 const keys={};
@@ -998,8 +2030,11 @@ function doJump(){
 }
 
 addEventListener('keydown',e=>{
-  if(e.code==='Space'){ e.preventDefault(); if(!e.repeat && !typing(e)) doJump(); }
-  if(typing(e))return; keys[e.code]=true; startGame();
+  if(typing(e)) return;                                    // let the code box keep its keystrokes
+  if(e.code==='Space'){ e.preventDefault(); if(!e.repeat) doJump(); }
+  if(e.code==='KeyP' && !e.repeat){ togglePhone(); return; }
+  if(e.code==='Escape' && phoneOpen){ togglePhone(false); return; }
+  keys[e.code]=true; startGame();
 });
 addEventListener('keyup',e=>{ if(typing(e))return; keys[e.code]=false;});
 function handleTouch(e){
@@ -1112,6 +2147,9 @@ function startGame(){
 document.getElementById('title').addEventListener('click',startGame);
 
 let dist=0, speed=0, lateral=0, heading=0, steerVis=0, shake=0, boostVis=0;
+let boostFuel=BOOST_CAP, boostLock=false;
+const boostEl=document.getElementById('boost'), boostFillEl=document.getElementById('boostFill');
+const fareEl=document.getElementById('fare');
 const speedEl=document.getElementById('speed');
 const offroadEl=document.getElementById('offroad');
 
@@ -1129,17 +2167,34 @@ function loop(now){
   if(touchSteer) steer=touchSteer;
   const accel=keys['ArrowUp']||keys['KeyW']||touchAccel;
   const brake=keys['ArrowDown']||keys['KeyS'];
-  const boost=started && !brake && (keys['ShiftLeft']||keys['ShiftRight']);
+  // --- boost fuel: one committed tank. Letting go does NOT top it up — the
+  // charge only recharges once it has been run all the way to empty, and then
+  // it has to come back to full before you can light it again. ---
+  const wantBoost = started && !brake && (keys['ShiftLeft']||keys['ShiftRight']);
+  let boost=false;
+  if(boostLock){                                   // burnt out: refilling, no boost available
+    boostFuel=Math.min(BOOST_CAP, boostFuel+boostRegen()*dt);
+    if(boostFuel>=BOOST_CAP){ boostFuel=BOOST_CAP; boostLock=false; }
+  }else if(wantBoost && boostFuel>0){
+    boost=true;
+    boostFuel-=boostDrain()*dt;
+    if(boostFuel<=0){ boostFuel=0; boostLock=true; }
+  }                                                // otherwise the tank just holds its level
+  boostFillEl.style.width=(boostFuel/BOOST_CAP*100).toFixed(1)+'%';
+  boostEl.classList.toggle('lock', boostLock);
+  boostEl.classList.toggle('low', !boostLock && boostFuel<BOOST_CAP*0.3);
 
   // which tunnel are we in / heading for, and are the walls around us?
   const tunWin = zoneWindow(dist-60, Z_TUN);
   const inTunnel = (dist+8) > tunWin[0]+3 && (dist+8) < tunWin[1]-3;
+  const inCity = zoneOf(dist+8)===Z_CITY;    // kerbs box the lane in
 
-  // --- speed ---
-  const target= !started? 55 : brake? 25 : boost? 310 : accel? 215 : 95;
-  const rate = target>speed? (boost?95 : accel?55 : 35) : 130;
+  // --- speed (tops and acceleration scale with garage upgrades) ---
+  const target= !started? 55 : brake? 25 : boost? boostTop() : accel? engineTop() : cruiseTop();
+  const rate = target>speed? (boost? accelRate()+40 : accel? accelRate() : 35) : 130;
   speed += Math.sign(target-speed)*Math.min(Math.abs(target-speed), rate*dt);
   boostVis += ((boost?1:0) - boostVis)*Math.min(1, dt*9);
+  if(started) tickEconomy(dt, speed);
 
   // --- steering (yaw first, then travel along the heading) ---
   // steerVis : smoothed wheel position (-1..1)
@@ -1158,8 +2213,8 @@ function loop(now){
     lateral += (0-lateral)*Math.min(1,dt*2);
     steerVis *= Math.max(0,1-dt*2);
   }
-  // inside a tunnel the walls are solid; out in the open there's slack past the edge
-  const LIMIT = inTunnel ? TUN_W-2.7 : HALF+4;
+  // tunnel walls and city kerbs are solid; out in the open there's slack past the edge
+  const LIMIT = inTunnel ? TUN_W-2.7 : inCity ? HALF : HALF+4;
   lateral = Math.max(-LIMIT, Math.min(LIMIT, lateral));
 
   // --- off-road ---
@@ -1170,8 +2225,8 @@ function loop(now){
   }else shake=Math.max(0,shake-dt*4);
   offroadEl.style.opacity = off&&started? 1:0;
 
-  // scraping a tunnel wall
-  if(inTunnel && started && Math.abs(lateral) > LIMIT-0.15){
+  // scraping a tunnel wall or clipping a kerb
+  if((inTunnel||inCity) && started && Math.abs(lateral) > LIMIT-0.15){
     speed=Math.max(30, speed - 170*dt);
     shake=Math.min(1, shake+dt*9);
     heading *= Math.max(0, 1-dt*6);
@@ -1184,10 +2239,14 @@ function loop(now){
 
   // --- environment: mountains -> tunnel -> city -> loop ---
   updateTunnel(dist, tunWin);
-  updateCity(dist);
   const tf = tunFactor(dist, tunWin);        // 1 only while the camera is inside
-  scene.fog.near = 250 - 205*tf;
-  scene.fog.far  = 950 - 550*tf;
+  const cd = cityDepth(dist);                // the city opens the view right up
+  scene.fog.near = (250 + 120*cd)*(1-tf) + 45*tf;
+  scene.fog.far  = (FAR_HIDE + 800*cd)*(1-tf) + 400*tf;
+  updateCity(dist, scene.fog.far);
+  updateCityFurniture(dist, scene.fog.far);
+  updateRides(dist, scene.fog.far, t);
+  groundMat.color.setScalar(1 - 0.6*cd);     // neon void gives way to pavement
   scene.fog.color.copy(baseFogColor).lerp(BLACKC, tf*0.7);
   sunLight.intensity = SUN_BASE*(1 - 0.8*tf);
   ambLight.intensity = 1 - 0.5*tf;
@@ -1249,16 +2308,19 @@ function loop(now){
   tg.scale.setScalar(brake? 1.4 : 1);
 
   // --- boost flames ---
-  car.userData.flames.forEach(fl=>{
-    const on=boostVis;
-    if(on<0.03){ fl.outer.visible=fl.inner.visible=false; return; }
-    fl.outer.visible=fl.inner.visible=true;
-    const flick=0.7+Math.random()*0.6;
-    fl.outer.scale.set(0.8+0.3*flick, on*(0.85+0.4*flick), 0.8+0.3*flick);
-    fl.inner.scale.set(0.8+0.3*flick, on*(0.9+0.3*flick), 0.8+0.3*flick);
-    fl.outer.material.opacity = on*0.5*flick;
-    fl.inner.material.opacity = on*0.85*flick;
-  });
+  {
+    const on=boostVis, lit=on>=0.03, flick=0.7+Math.random()*0.6;
+    vFlameO.opacity = on*0.5*flick;          // shared across every body
+    vFlameI.opacity = on*0.85*flick;
+    for(const fl of car.userData.flames){
+      fl.outer.visible=fl.inner.visible=lit;
+      if(!lit) continue;
+      fl.outer.scale.set(0.8+0.3*flick, on*(0.85+0.4*flick), 0.8+0.3*flick);
+      fl.inner.scale.set(0.8+0.3*flick, on*(0.9+0.3*flick), 0.8+0.3*flick);
+    }
+  }
+  if(car.userData.rig.extraLean)             // bikes lean further than the chassis does
+    VEHICLES[game.vehicle].g.rotation.z = -steerVis*car.userData.rig.extraLean;
 
   // --- camera: locked directly behind the car; the road curves ahead ---
   // camera x carries the same `lateral` as the car, so the car holds a fixed
@@ -1274,7 +2336,7 @@ function loop(now){
   }
   camera.lookAt((rx+lateral)*0.35 + (aheadX+lateral)*0.65, 4, -80);
   camera.rotateZ(-steerVis*.03);
-  const fov = 68 + speed*.085;
+  const fov = Math.min(104, 68 + speed*.085);   // capped, or upgraded top speeds fish-eye
   if(Math.abs(camera.fov-fov)>.1){ camera.fov=fov; camera.updateProjectionMatrix(); }
 
   // --- sky tracks camera (infinite distance illusion) ---
