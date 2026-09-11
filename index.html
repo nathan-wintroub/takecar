@@ -219,7 +219,7 @@ const SUN_BASE = 0.9;
 
 /* persistent player state — declared up here because the vehicle, theme and
    economy systems all read it, and the vehicle rig is built first */
-const game={credits:0, up:{}, assets:{}, boosts:{}, themes:{}, vehicles:{}, vehicle:0, totalDist:0, spent:0};
+const game={credits:0, up:{}, assets:{}, boosts:{}, themes:{}, vehicles:{}, vehicle:0, track:'', totalDist:0, spent:0};
 
 const camera = new THREE.PerspectiveCamera(70, innerWidth/innerHeight, .1, 3000);
 camera.position.set(0,7,10);
@@ -2113,7 +2113,7 @@ function fmtC(n){
 /* ---- persistence, with offline earnings from your assets ---- */
 function save(){
   try{ localStorage.setItem(SAVE_KEY, JSON.stringify({
-    credits:game.credits, up:game.up, assets:game.assets, boosts:game.boosts, themes:game.themes, rides:game.rides||0,
+    credits:game.credits, up:game.up, assets:game.assets, boosts:game.boosts, themes:game.themes, rides:game.rides||0, track:game.track,
     vehicles:game.vehicles, vehicle:game.vehicle,
     totalDist:game.totalDist, spent:game.spent, t:Date.now()
   })); }catch(e){}
@@ -2123,7 +2123,7 @@ function load(){
   try{ d=JSON.parse(localStorage.getItem(SAVE_KEY)||'null'); }catch(e){}
   if(!d) return;
   game.credits=+d.credits||0; game.up=d.up||{}; game.assets=d.assets||{}; game.boosts=d.boosts||{}; game.themes=d.themes||{};
-  game.vehicles=d.vehicles||{}; game.vehicle=+d.vehicle||0;
+  game.vehicles=d.vehicles||{}; game.vehicle=+d.vehicle||0; game.track=d.track||'';
   game.totalDist=+d.totalDist||0; game.spent=+d.spent||0; game.rides=+d.rides||0;
   UPGRADES.forEach(u=>{ if(game.up[u.id]>u.max) game.up[u.id]=u.max; });   // re-tuned caps
   const away=Math.min((Date.now()-(d.t||Date.now()))/1000, 8*3600);   // cap at 8h
@@ -2146,6 +2146,8 @@ renderPalettes();
 renderQueue();
 setVehicle(game.vehicle);            // restore the ride the save was using
 rebuildHoldings();                   // owned assets appear along the highway
+/* no applyTrack() here: it lives in the audio block further down, and
+   startGame() calls it once a gesture lets us play anything */
 setInterval(save, 5000);
 addEventListener('beforeunload', save);
 
@@ -2314,6 +2316,15 @@ function buyVehicle(i){
 /* Cheat codes. The payout scales with where you are, so it stays a real
    leg-up late instead of rounding to nothing against endgame income. */
 const CHEATS={
+  '12ss'(){
+    game.track='12ss.mp3'; save(); applyTrack();
+    toast('TRACK SWAPPED \u2014 TYPE SHOESOFF TO REVERT');
+  },
+  shoesoff(){
+    if(!game.track){ toast('ALREADY ON THE HOUSE BAND'); return; }
+    game.track=''; save(); applyTrack();
+    toast('BACK TO THE HOUSE BAND');
+  },
   payday(){
     const perSec=engineTop()*EARN_PER_UNIT*earnMult()+passiveRate();
     const amt=Math.max(1e6, perSec*3600);          // an hour of earnings, min a million
@@ -2461,6 +2472,26 @@ function initAudio(){
   nextT=actx.currentTime+.1;
   setInterval(schedule,90);
 }
+/* A custom track replaces the generated synthwave. The scheduler is skipped
+   while one is playing rather than just muted, so it stops building nodes. */
+let trackAudio=null;
+const SYNTH_VOL=.55, TRACK_VOL=.7;
+function applyTrack(){
+  if(game.track){
+    if(!trackAudio){ trackAudio=new Audio(); trackAudio.loop=true; }
+    if(trackAudio.getAttribute('data-src')!==game.track){
+      trackAudio.setAttribute('data-src', game.track);
+      trackAudio.src=game.track;
+    }
+    trackAudio.volume = muted? 0 : TRACK_VOL;
+    if(started) trackAudio.play().catch(()=>{});      // needs a gesture; we always have one
+    if(masterOut) masterOut.gain.value=0;
+  }else{
+    if(trackAudio) trackAudio.pause();
+    if(masterOut) masterOut.gain.value = muted? 0 : SYNTH_VOL;
+    if(actx) nextT=actx.currentTime+.1;               // don't dump a backlog of queued notes
+  }
+}
 function env(g,t,a,peak,dec){
   g.gain.setValueAtTime(0.0001,t);
   g.gain.exponentialRampToValueAtTime(peak,t+a);
@@ -2474,6 +2505,7 @@ function tone(type,freq,t,a,peak,dec,dest,detune){
   o.start(t); o.stop(t+a+dec+.05);
 }
 function schedule(){
+  if(game.track){ nextT=actx.currentTime+.2; return; }   // a file is playing; stay idle
   while(nextT < actx.currentTime+.35){
     const bar=Math.floor(step/16), inBar=step%16;
     const ch=CHORDS[bar%4];
@@ -2511,7 +2543,8 @@ document.getElementById('mute').addEventListener('click',e=>{
   e.stopPropagation();
   startGame();
   muted=!muted;
-  if(masterOut) masterOut.gain.value = muted? 0 : .55;
+  if(masterOut) masterOut.gain.value = (muted||game.track)? 0 : SYNTH_VOL;
+  if(trackAudio) trackAudio.volume = muted? 0 : TRACK_VOL;
   e.target.textContent = muted? '♪ OFF' : '♪ ON';
   e.target.blur();   // don't leave the button focused, or Space would re-toggle it
 });
@@ -2524,6 +2557,7 @@ function startGame(){
   document.getElementById('title').classList.add('gone');
   initAudio();
   if(actx && actx.state==='suspended') actx.resume();
+  applyTrack();
 }
 document.getElementById('title').addEventListener('click',startGame);
 
