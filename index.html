@@ -2092,11 +2092,23 @@ function buyVehicle(i){
   setVehicle(i); save(); renderPhone();
   toast('UNLOCKED — '+v.name.toUpperCase());
 }
+/* Cheat codes. The payout scales with where you are, so it stays a real
+   leg-up late instead of rounding to nothing against endgame income. */
+const CHEATS={
+  payday(){
+    const perSec=engineTop()*EARN_PER_UNIT*earnMult()+passiveRate();
+    const amt=Math.max(1e6, perSec*3600);          // an hour of earnings, min a million
+    game.credits+=amt;
+    save(); renderPhone();
+    toast('PAYDAY  \u25C8'+fmtC(amt));
+  },
+};
 function redeem(){
   const el=document.getElementById('pCodeIn');
   const v=(el.value||'').trim().toLowerCase().replace(/[^a-z0-9]/g,'');
   el.value='';
   if(!v) return;
+  if(CHEATS[v]){ CHEATS[v](); return; }            // cheats first, then palette codes
   const i=PALETTES.findIndex(p=>p.code===v);
   if(i<0){ toast('INVALID CODE'); return; }
   if(themeOwned(i)){ toast('ALREADY UNLOCKED'); return; }
