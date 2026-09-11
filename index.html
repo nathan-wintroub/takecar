@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>NIGHTWAVE DRIVE</title>
+<title>#doyalike</title>
 <style>
   :root{ --bg:#0b0121; --hud-a:#ff71d5; --hud-b:#9ffcff; }
   html,body{margin:0;padding:0;overflow:hidden;background:var(--bg);height:100%;font-family:'Segoe UI',Helvetica,Arial,sans-serif;}
@@ -193,7 +193,7 @@
   <div id="paletteGrid"></div>
 </div>
 <div id="title">
-  <h1>NIGHTWAVE<br>DRIVE</h1>
+  <h1>#doyalike<br></h1>
   <div class="jp">夜 の ド ラ イ ブ</div>
   <div class="press">PRESS ANY KEY — JUST DRIVE</div>
 </div>
@@ -447,6 +447,28 @@ function wedge(w,h,d, fx,fy, dz){
   return g;
 }
 
+/* Richer shaping than wedge(): independently taper the nose (-Z) and tail (+Z),
+   pull the roofline in (tumblehome), and rake the nose upward. */
+function body(w,h,d,o){
+  o=o||{};
+  const g=new THREE.BoxGeometry(w,h,d);
+  const p=g.attributes.position;
+  for(let i=0;i<p.count;i++){
+    let x=p.getX(i), y=p.getY(i), z=p.getZ(i);
+    if(z<0){ if(o.fx!=null)x*=o.fx; if(o.fy!=null)y*=o.fy; if(o.fz)z+=o.fz; if(o.lift)y+=o.lift; }
+    else   { if(o.bx!=null)x*=o.bx; if(o.by!=null)y*=o.by; if(o.bz)z-=o.bz; if(o.drop)y-=o.drop; }
+    if(o.tx!=null && y>0) x*=o.tx;
+    p.setXYZ(i,x,y,z);
+  }
+  g.computeVertexNormals();
+  return g;
+}
+/* flared arch over a wheel; the torus arc is the top half, turned to face along X */
+function arch(g, mat, x, y, z, r, t){
+  const m=new THREE.Mesh(new THREE.TorusGeometry(r, t, 6, 14, Math.PI), mat);
+  m.rotation.y=Math.PI/2; m.position.set(x,y,z); g.add(m); return m;
+}
+
 /* ---- shared materials: theming touches these and every body follows ---- */
 const vPaint = new THREE.MeshPhongMaterial({color:0x1e1046, emissive:0x0b0524, specular:0x9b5bff, shininess:70, flatShading:true});
 const vPanel = new THREE.MeshPhongMaterial({color:0x2b1a63, emissive:0x0c0730, specular:0x6a3fd0, shininess:50, flatShading:true});
@@ -480,8 +502,8 @@ car.userData.theme={ paintMat:vPaint, panelMat:vPanel, darkMat:vDark, rimMat:vRi
   tailGlowMat:vTailGlow, flameO:vFlameO, flameI:vFlameI };
 
 /* ---- shared builders ---- */
-function addWheel(g, rig, x, y, z, r, w, isFront, spokes){
-  const pivot=new THREE.Group(); pivot.position.set(x,y,z); g.add(pivot);
+function addWheel(parent, rig, x, y, z, r, w, isFront, spokes){
+  const pivot=new THREE.Group(); pivot.position.set(x,y,z); parent.add(pivot);
   const spin=new THREE.Group(); pivot.add(spin);
   const tire=new THREE.Mesh(new THREE.CylinderGeometry(r,r,w,20), vDark); tire.rotation.z=Math.PI/2; spin.add(tire);
   const rim =new THREE.Mesh(new THREE.CylinderGeometry(r*.6,r*.6,w*1.04,spokes||6), vRim); rim.rotation.z=Math.PI/2; spin.add(rim);
@@ -546,149 +568,268 @@ function buildWedge(g, rig){
 function buildRoadster(g, rig){
   const B=(geo,mat,x,y,z,rx,ry,rz)=>{ const m=new THREE.Mesh(geo,mat);
     m.position.set(x,y,z); if(rx)m.rotation.x=rx; if(ry)m.rotation.y=ry; if(rz)m.rotation.z=rz; g.add(m); return m; };
-  B(wedge(4.3,1.0,8.2,.62,.7,.4), vPaint, 0,.95,0);            // soft rounded tub
-  B(wedge(3.8,.36,3.2,.6,.7,.3), vPanel, 0,1.5,-2.5, -.08);    // long bonnet
-  B(new THREE.BoxGeometry(2.6,.1,1.5), vB, 0,1.69,-2.3, -.08); // bonnet stripe
-  B(wedge(3.4,.5,1.6,.7,.6,0), vGlass, 0,1.86,-.5, -.42);      // low windscreen
-  B(new THREE.BoxGeometry(3.5,.12,.12), vA, 0,2.12,-.95, -.42);
+  // hull: low, pinched at both ends, roofline drawn in
+  B(body(4.3,1.05,8.6,{fx:.68,fy:.72,fz:.5,bx:.8,by:.86,tx:.9}), vPaint, 0,.98,0);
+  B(body(3.9,.34,3.9,{fx:.72,fy:.7,fz:.3,tx:.94}), vPanel, 0,1.54,-2.6, -.07);      // bonnet
+  B(body(1.5,.12,2.6,{fx:.7}), vA,    0,1.73,-2.6, -.07);                            // centre stripe
+  B(new THREE.BoxGeometry(2.2,.1,.9), vDark, 0,1.72,-1.05, -.07);                    // bonnet vent
+  B(new THREE.BoxGeometry(1.3,.06,.55), vDark, 0,1.66,-3.4, -.07);
+  // cockpit
+  B(new THREE.BoxGeometry(3.5,.55,2.9), vDark, 0,1.28,.9);                           // tub interior
   [[-1],[1]].forEach(([s])=>{
-    B(new THREE.TorusGeometry(.55,.12,8,14,Math.PI), vRim, s*.85,1.95,1.0, 0,0,0);  // roll hoops
-    B(new THREE.BoxGeometry(.16,.3,4.6), vDark, s*2.18,.62,.4);                     // sill
-    B(new THREE.BoxGeometry(.07,.1,5.4), s>0?vA:vB, s*2.2,1.15,-.2);                // neon line
-    B(new THREE.CylinderGeometry(.15,.15,2.2,10), vRim, s*2.24,.62,1.9, Math.PI/2); // side pipe
+    B(new THREE.BoxGeometry(1.15,.28,1.2), vPanel, s*.85,1.6,1.25);                  // seat base
+    B(body(1.1,.95,.3,{tx:.8}), vPanel, s*.85,2.0,1.95);                             // seat back
+    B(new THREE.BoxGeometry(.62,.42,.3), vDark, s*.85,2.6,2.0);                      // headrest
+    B(new THREE.TorusGeometry(.5,.11,6,12,Math.PI), vRim, s*.85,2.42,2.1);           // roll hoop
   });
-  B(new THREE.BoxGeometry(3.6,.6,1.7), vDark, 0,1.15,1.5);      // cockpit well
-  B(new THREE.BoxGeometry(1.2,.22,1.1), vPanel, 0,1.5,1.3);     // seat back
-  B(wedge(4.1,.5,2.6,.9,.8,0), vPanel, 0,1.42,2.9, .05);        // boot
-  B(new THREE.BoxGeometry(3.6,.22,.12), vA, 0,1.42,4.06);
-  B(new THREE.BoxGeometry(3.0,.08,.14), vTailIn, 0,1.42,4.09);
-  [[-1.3],[1.3]].forEach(([x])=>{
-    B(new THREE.CylinderGeometry(.34,.34,.34,14), vB, x,1.0,-4.02, Math.PI/2);      // round headlamps
-    B(new THREE.CylinderGeometry(.2,.2,.55,10), vRim, x,.62,4.16, Math.PI/2);
+  B(new THREE.TorusGeometry(.34,.07,6,14), vRim, -.85,1.92,.35, 0,.1);               // wheel
+  // screen frame, raked
+  B(new THREE.BoxGeometry(3.1,.75,.07), vGlass, 0,2.16,-.25, -.42);
+  B(new THREE.BoxGeometry(3.2,.1,.12), vRim, 0,2.5,-.42, -.42);
+  [[-1],[1]].forEach(([s])=> B(new THREE.BoxGeometry(.1,.8,.12), vRim, s*1.55,2.14,-.22, -.42));
+  // tail
+  B(body(4.2,.62,3.0,{fx:.95,bx:.78,by:.8,bz:.3}), vPanel, 0,1.46,3.0, .04);
+  B(new THREE.BoxGeometry(3.3,.16,.7), vPanel, 0,1.78,4.0, .2);                      // ducktail lip
+  B(new THREE.BoxGeometry(3.4,.24,.12), vA, 0,1.42,4.34);
+  B(new THREE.BoxGeometry(2.8,.09,.14), vTailIn, 0,1.42,4.37);
+  B(new THREE.BoxGeometry(3.0,.3,.5), vRim, 0,.72,4.3);                              // rear bumper
+  // nose
+  B(new THREE.BoxGeometry(3.2,.34,.5), vRim, 0,.92,-4.26);                           // front bumper
+  B(new THREE.BoxGeometry(2.3,.4,.3), vDark, 0,1.24,-4.2);                           // grille
+  for(let i=-2;i<=2;i++) B(new THREE.BoxGeometry(.06,.32,.1), vRim, i*.42,1.24,-4.33);
+  [[-1.28],[1.28]].forEach(([x])=>{
+    B(new THREE.CylinderGeometry(.36,.36,.3,14), vB, x,1.3,-4.05, Math.PI/2);        // round lamps
+    B(new THREE.TorusGeometry(.37,.06,6,14), vRim, x,1.3,-4.06);
   });
-  [[-2.1,-2.8,1],[2.1,-2.8,1],[-2.1,2.9,0],[2.1,2.9,0]].forEach(([x,z,f])=>
-    addWheel(g,rig,x,.86,z,.88,.5,f,10));
-  addFlame(g,rig,-1.3,.62,4.3,.42,3.0);
-  addFlame(g,rig, 1.3,.62,4.3,.42,3.0);
-  addTailGlow(g,rig,1.45,4.25,6.2,2.4);
+  // flanks
+  [[-1],[1]].forEach(([s])=>{
+    B(new THREE.BoxGeometry(.16,.4,4.4), vDark, s*2.15,.6,.5);                       // sill
+    B(new THREE.BoxGeometry(.07,.11,4.6), s>0?vA:vB, s*2.18,1.32,.2);                // neon crease
+    B(new THREE.BoxGeometry(.05,.7,.05), vDark, s*2.16,1.3,1.9);                     // door seam
+    B(new THREE.CylinderGeometry(.17,.17,2.0,10), vRim, s*2.2,.66,2.2, Math.PI/2);   // side pipe
+    B(new THREE.BoxGeometry(.14,.3,.5), vRim, s*2.05,2.0,-.55);                      // mirror stalk
+    B(new THREE.BoxGeometry(.1,.26,.42), vGlass, s*2.26,2.12,-.62);
+    arch(g, vPaint, s*2.06,.92,-2.85, 1.18,.2);                                      // flared arches
+    arch(g, vPaint, s*2.06,.92, 2.95, 1.22,.22);
+  });
+  [[-2.06,-2.85,1],[2.06,-2.85,1],[-2.06,2.95,0],[2.06,2.95,0]].forEach(([x,z,f])=>
+    addWheel(g,rig,x,.88,z,.9,.52,f,10));
+  addFlame(g,rig,-1.15,.72,4.45,.42,3.0);
+  addFlame(g,rig, 1.15,.72,4.45,.42,3.0);
+  addTailGlow(g,rig,1.45,4.5,6.2,2.4);
 }
 
 function buildMuscle(g, rig){
   const B=(geo,mat,x,y,z,rx,ry,rz)=>{ const m=new THREE.Mesh(geo,mat);
     m.position.set(x,y,z); if(rx)m.rotation.x=rx; if(ry)m.rotation.y=ry; if(rz)m.rotation.z=rz; g.add(m); return m; };
-  B(new THREE.BoxGeometry(4.8,1.15,9.4), vPaint, 0,1.15,0);     // slab body
-  B(new THREE.BoxGeometry(4.5,.5,3.8), vPanel, 0,1.85,-2.9);    // flat bonnet
-  B(new THREE.BoxGeometry(1.5,.5,1.7), vDark, 0,2.22,-2.6);     // scoop
-  B(new THREE.BoxGeometry(1.2,.18,1.4), vA, 0,2.46,-2.6);
-  B(new THREE.BoxGeometry(3.9,1.2,3.4), vGlass, 0,2.32,.5);     // greenhouse
-  B(new THREE.BoxGeometry(4.1,.2,3.2), vPaint, 0,2.94,.6);      // roof
-  B(new THREE.BoxGeometry(4.6,.7,2.6), vPanel, 0,1.95,3.4);     // raised tail
-  B(new THREE.BoxGeometry(4.4,.3,.14), vA, 0,1.9,4.72);
-  B(new THREE.BoxGeometry(3.8,.1,.16), vTailIn, 0,1.9,4.75);
+  B(body(4.7,1.25,9.6,{fx:.93,fy:.9,bx:.95,tx:.93}), vPaint, 0,1.18,0);              // slab
+  [[-1],[1]].forEach(([s])=> B(body(1.0,1.0,3.4,{fz:.5,bz:.4,tx:.7}), vPaint, s*2.15,1.35,2.8));  // rear haunches
+  // bonnet + scoop
+  B(body(4.4,.46,4.0,{fx:.9,fy:.8,tx:.96}), vPanel, 0,1.92,-2.9, -.02);
+  [[-1],[1]].forEach(([s])=> B(body(1.25,.26,3.0,{fx:.6,tx:.8}), vPanel, s*1.15,2.2,-2.9, -.02));  // power bulges
+  B(body(1.6,.52,1.9,{fx:.65,fy:.7}), vDark, 0,2.44,-2.4);                            // blower scoop
+  B(new THREE.BoxGeometry(1.3,.16,1.5), vA, 0,2.72,-2.4);
+  [[-.5],[.5]].forEach(([x])=> B(new THREE.BoxGeometry(.14,.14,.14), vRim, x,2.2,-4.4));  // hood pins
+  // greenhouse, separate panes
+  B(new THREE.BoxGeometry(3.7,1.15,.12), vGlass, 0,2.5,-1.1, -.34);                   // windscreen
+  B(body(3.9,.22,3.2,{fx:.86,bx:.9,tx:.95}), vPaint, 0,3.05,.55);                     // roof
   [[-1],[1]].forEach(([s])=>{
-    B(new THREE.CylinderGeometry(.26,.26,4.2,10), vRim, s*2.5,.62,.6, Math.PI/2);   // side pipes
-    B(new THREE.BoxGeometry(.09,.12,7.2), s>0?vA:vB, s*2.42,1.5,-.2);
-    B(new THREE.BoxGeometry(.18,1.0,.5), vDark, s*1.9,2.55,4.2, .18);               // wing struts
-    B(new THREE.BoxGeometry(1.3,.26,.6), vB, s*1.55,1.25,-4.7);                     // quad lamps
+    B(new THREE.BoxGeometry(.1,.9,1.5), vGlass, s*1.88,2.5,.5);                       // side glass
+    B(new THREE.BoxGeometry(.13,1.1,.14), vPaint, s*1.9,2.5,-.35);                    // B-pillar
+    B(new THREE.BoxGeometry(.13,1.0,.14), vPaint, s*1.9,2.55,1.35);
   });
-  B(new THREE.BoxGeometry(5.0,.16,1.2), vPanel, 0,3.05,4.35, .12);                  // ducktail wing
-  B(new THREE.BoxGeometry(4.6,.16,1.0), vDark, 0,.5,-4.8);                          // chin spoiler
-  addWheel(g,rig,-2.25,.92,-3.1,.94,.56,1,6);
-  addWheel(g,rig, 2.25,.92,-3.1,.94,.56,1,6);
-  addWheel(g,rig,-2.35,1.08,3.2,1.1,.82,0,6);                                       // fat rears
-  addWheel(g,rig, 2.35,1.08,3.2,1.1,.82,0,6);
-  addFlame(g,rig,-2.5,.62,2.75,.34,2.4);
-  addFlame(g,rig, 2.5,.62,2.75,.34,2.4);
-  addTailGlow(g,rig,1.95,4.95,7.4,2.8);
+  B(new THREE.BoxGeometry(3.5,1.0,.12), vGlass, 0,2.62,2.35, .55);                    // fastback glass
+  B(body(4.3,.5,1.6,{bx:.92}), vPanel, 0,2.22,3.6, .12);                              // rear deck
+  // tail
+  B(new THREE.BoxGeometry(4.5,.5,.4), vRim, 0,1.35,4.86);                             // chrome bumper
+  B(new THREE.BoxGeometry(4.2,.34,.14), vA, 0,1.86,4.82);
+  B(new THREE.BoxGeometry(3.6,.12,.16), vTailIn, 0,1.86,4.85);
+  for(let i=-3;i<=3;i++) B(new THREE.BoxGeometry(.07,.3,.1), vDark, i*.56,1.86,4.9);  // tail slats
+  B(new THREE.BoxGeometry(4.8,.16,1.1), vPanel, 0,2.58,4.4, .14);                     // ducktail
+  [[-1],[1]].forEach(([s])=> B(new THREE.BoxGeometry(.16,.55,.5), vPanel, s*1.9,2.36,4.2, .14));
+  // nose
+  B(new THREE.BoxGeometry(4.5,.5,.4), vRim, 0,1.2,-4.86);
+  B(new THREE.BoxGeometry(3.6,.55,.3), vDark, 0,1.55,-4.8);
+  for(let i=-5;i<=5;i++) B(new THREE.BoxGeometry(.05,.45,.1), vRim, i*.3,1.55,-4.93);
+  [[-1.55,-.55],[1.55,.55]].forEach(([a,b])=>[a,a>0?a-.7:a+.7].forEach((x,k)=>
+    B(new THREE.CylinderGeometry(.3,.3,.26,12), vB, x,1.58,-4.94, Math.PI/2)));       // quad lamps
+  B(new THREE.BoxGeometry(4.4,.2,1.0), vDark, 0,.52,-4.6);                            // chin spoiler
+  // flanks
+  [[-1],[1]].forEach(([s])=>{
+    B(new THREE.CylinderGeometry(.24,.24,4.0,10), vRim, s*2.52,.68,.4, Math.PI/2);    // side pipe
+    B(new THREE.BoxGeometry(.14,.34,3.4), vDark, s*2.56,.72,.4);                      // heat shield
+    B(new THREE.BoxGeometry(.08,.13,7.4), s>0?vA:vB, s*2.4,1.62,-.2);                 // beltline neon
+    B(new THREE.BoxGeometry(.06,.85,.06), vDark, s*2.38,1.5,1.3);                     // door seam
+    B(new THREE.BoxGeometry(.2,.1,.3), vRim, s*2.42,1.9,1.0);                         // handle
+    B(new THREE.BoxGeometry(.16,.3,.45), vRim, s*2.1,2.5,-1.35);                      // mirror
+    B(new THREE.BoxGeometry(.1,.26,.4), vGlass, s*2.28,2.6,-1.4);
+    arch(g, vPaint, s*2.2,1.0,-3.1, 1.3,.24);
+    arch(g, vPaint, s*2.3,1.1, 3.2, 1.5,.28);
+  });
+  addWheel(g,rig,-2.22,.94,-3.1,.96,.58,1,6);
+  addWheel(g,rig, 2.22,.94,-3.1,.96,.58,1,6);
+  addWheel(g,rig,-2.32,1.12,3.2,1.14,.86,0,6);
+  addWheel(g,rig, 2.32,1.12,3.2,1.14,.86,0,6);
+  addFlame(g,rig,-2.52,.68,2.45,.34,2.4);
+  addFlame(g,rig, 2.52,.68,2.45,.34,2.4);
+  addTailGlow(g,rig,1.9,5.05,7.4,2.8);
 }
 
 function buildVan(g, rig){
   const B=(geo,mat,x,y,z,rx,ry,rz)=>{ const m=new THREE.Mesh(geo,mat);
     m.position.set(x,y,z); if(rx)m.rotation.x=rx; if(ry)m.rotation.y=ry; if(rz)m.rotation.z=rz; g.add(m); return m; };
-  B(new THREE.BoxGeometry(4.6,3.1,9.0), vPaint, 0,2.15,.3);         // tall slab
-  B(wedge(4.5,1.6,2.4,.92,.72,0), vPanel, 0,1.45,-4.1);             // snub nose
-  B(new THREE.BoxGeometry(3.9,1.3,.3), vGlass, 0,2.75,-4.2, -.16);  // big windscreen
+  B(body(4.6,3.0,8.6,{tx:.9,fz:.2,bx:.97}), vPaint, 0,2.2,.5);                        // slab with drawn-in roof
+  B(body(4.5,1.5,2.6,{fx:.86,fy:.62,fz:.3}), vPanel, 0,1.5,-4.0);                     // snub nose
+  B(new THREE.BoxGeometry(3.9,1.45,.14), vGlass, 0,2.82,-4.02, -.3);                  // raked screen
+  B(new THREE.BoxGeometry(4.1,.18,.6), vPanel, 0,3.52,-3.92, -.3);                    // sun visor
   [[-1],[1]].forEach(([s])=>{
-    B(new THREE.BoxGeometry(.2,1.0,2.0), vGlass, s*2.32,2.8,-2.0);  // cab windows
-    B(new THREE.BoxGeometry(.2,1.0,2.4), vGlass, s*2.32,2.8,.8);
-    B(new THREE.BoxGeometry(.1,.34,8.4), s>0?vA:vB, s*2.33,1.5,.3); // stripe
-    B(new THREE.BoxGeometry(.1,.18,8.4), vTailIn, s*2.33,1.14,.3);
-    B(new THREE.BoxGeometry(.5,.28,.5), vDark, s*1.9,3.78,-2.2);    // roof rack feet
-    B(new THREE.BoxGeometry(.5,.28,.5), vDark, s*1.9,3.78,2.6);
+    B(new THREE.BoxGeometry(.14,1.05,1.9), vGlass, s*2.3,2.9,-2.4);                   // cab window
+    B(new THREE.BoxGeometry(.14,1.05,2.3), vGlass, s*2.3,2.9,.6);                     // mid window
+    B(new THREE.BoxGeometry(.16,1.15,.16), vPaint, s*2.31,2.9,-1.3);                  // pillar
+    B(new THREE.BoxGeometry(.16,1.15,.16), vPaint, s*2.31,2.9,2.0);
+    B(new THREE.BoxGeometry(.1,.36,8.0), s>0?vA:vB, s*2.33,1.62,.4);                  // stripe
+    B(new THREE.BoxGeometry(.1,.18,8.0), vTailIn, s*2.33,1.22,.4);
+    B(new THREE.BoxGeometry(.06,1.6,.06), vDark, s*2.32,1.9,-1.35);                   // door seams
+    B(new THREE.BoxGeometry(.06,1.6,.06), vDark, s*2.32,1.9,1.95);
+    B(new THREE.BoxGeometry(.22,.1,.34), vRim, s*2.38,2.0,1.5);                       // handle
+    B(new THREE.BoxGeometry(.2,.4,.5), vRim, s*2.35,3.0,-3.5);                        // mirror arm
+    B(new THREE.BoxGeometry(.12,.42,.58), vGlass, s*2.5,3.0,-3.56);
+    arch(g, vPaint, s*2.3,1.0,-3.0, 1.32,.26);
+    arch(g, vPaint, s*2.3,1.0, 3.3, 1.32,.26);
   });
-  B(new THREE.BoxGeometry(4.2,.16,6.0), vDark, 0,3.94,.2);          // roof rack
-  B(new THREE.BoxGeometry(3.6,.14,.5), vB, 0,4.06,-2.5);
-  B(new THREE.BoxGeometry(4.3,.34,.14), vA, 0,2.3,4.82);            // tail bar
-  B(new THREE.BoxGeometry(3.6,.12,.16), vTailIn, 0,2.3,4.85);
-  [[-1.5],[1.5]].forEach(([x])=> B(new THREE.BoxGeometry(1.0,.34,.16), vB, x,1.0,-5.25));
-  B(new THREE.BoxGeometry(4.4,.4,.5), vDark, 0,.6,4.8);             // rear bumper
-  addWheel(g,rig,-2.2,.92,-3.2,.94,.6,1,8);
-  addWheel(g,rig, 2.2,.92,-3.2,.94,.6,1,8);
-  addWheel(g,rig,-2.2,.92,3.4,.94,.6,0,8);
-  addWheel(g,rig, 2.2,.92,3.4,.94,.6,0,8);
-  addFlame(g,rig,-1.4,.7,4.9,.44,3.0);
-  addFlame(g,rig, 1.4,.7,4.9,.44,3.0);
-  addTailGlow(g,rig,2.3,5.0,6.8,2.8);
+  // roof rack with a load
+  B(new THREE.BoxGeometry(4.3,.14,6.2), vDark, 0,3.82,.4);
+  [[-1],[1]].forEach(([s])=> B(new THREE.BoxGeometry(.12,.3,6.2), vRim, s*2.05,3.98,.4));
+  for(let i=0;i<4;i++) B(new THREE.BoxGeometry(4.2,.1,.12), vRim, 0,3.98,-2.2+i*1.55);
+  B(body(2.4,.7,2.6,{tx:.85}), vPanel, 0,4.25,-.9);                                    // cargo box
+  B(new THREE.BoxGeometry(2.0,.1,.16), vB, 0,4.58,-.9);
+  B(new THREE.BoxGeometry(1.4,.12,2.2), vDark, 1.1,4.2,2.1);                           // strapped board
+  // front
+  B(new THREE.BoxGeometry(4.5,.46,.42), vRim, 0,.95,-5.15);                            // bumper
+  B(new THREE.BoxGeometry(3.2,.5,.26), vDark, 0,1.55,-5.12);                           // grille
+  for(let i=-3;i<=3;i++) B(new THREE.BoxGeometry(.06,.42,.1), vRim, i*.42,1.55,-5.22);
+  [[-1.6],[1.6]].forEach(([x])=>{
+    B(new THREE.CylinderGeometry(.34,.34,.26,14), vB, x,1.6,-5.2, Math.PI/2);
+    B(new THREE.TorusGeometry(.35,.06,6,14), vRim, x,1.6,-5.21);
+  });
+  // rear
+  B(new THREE.BoxGeometry(4.4,.46,.42), vRim, 0,.95,4.9);
+  B(new THREE.BoxGeometry(3.4,1.2,.12), vGlass, 0,3.0,4.78);                           // rear door glass
+  B(new THREE.BoxGeometry(.1,2.4,.12), vDark, 0,2.3,4.8);                              // door split
+  B(new THREE.BoxGeometry(4.2,.34,.14), vA, 0,1.7,4.82);
+  B(new THREE.BoxGeometry(3.5,.12,.16), vTailIn, 0,1.7,4.85);
+  [[-1],[1]].forEach(([s])=> B(new THREE.BoxGeometry(.12,1.9,.12), vRim, s*1.5,2.2,4.95));  // ladder rails
+  for(let i=0;i<5;i++) B(new THREE.BoxGeometry(3.0,.09,.09), vRim, 0,1.4+i*.42,4.95);
+  addWheel(g,rig,-2.2,.94,-3.0,.96,.62,1,8);
+  addWheel(g,rig, 2.2,.94,-3.0,.96,.62,1,8);
+  addWheel(g,rig,-2.2,.94, 3.3,.96,.62,0,8);
+  addWheel(g,rig, 2.2,.94, 3.3,.96,.62,0,8);
+  addFlame(g,rig,-1.3,.72,5.0,.44,3.0);
+  addFlame(g,rig, 1.3,.72,5.0,.44,3.0);
+  addTailGlow(g,rig,1.7,5.05,6.8,2.8);
 }
 
 function buildBike(g, rig){
   const B=(geo,mat,x,y,z,rx,ry,rz)=>{ const m=new THREE.Mesh(geo,mat);
     m.position.set(x,y,z); if(rx)m.rotation.x=rx; if(ry)m.rotation.y=ry; if(rz)m.rotation.z=rz; g.add(m); return m; };
-  B(new THREE.BoxGeometry(.7,.5,5.4), vDark, 0,1.5,0);              // spine
-  B(wedge(1.05,.95,2.6,.5,.6,.3), vPaint, 0,1.85,-.8);              // tank
-  B(new THREE.BoxGeometry(.9,.1,1.6), vA, 0,2.32,-.9);              // tank stripe
-  B(new THREE.BoxGeometry(1.0,.3,1.5), vDark, 0,2.0,1.1);           // seat
-  B(wedge(1.1,.8,1.9,.35,.5,.3), vPanel, 0,2.0,2.2);                // tail unit
-  B(new THREE.BoxGeometry(.9,.18,.12), vA, 0,2.1,3.1);              // tail light
-  B(wedge(1.15,1.5,1.9,.42,.5,.4), vPanel, 0,1.6,-2.5, -.2);        // front fairing
-  B(new THREE.BoxGeometry(.8,.42,.24), vB, 0,2.05,-3.2, -.25);      // headlight
-  B(new THREE.BoxGeometry(.75,.4,.1), vGlass, 0,2.5,-2.85, -.5);    // screen
-  B(new THREE.BoxGeometry(2.0,.14,.14), vRim, 0,2.55,-2.1);         // bars
+  // ---- front end turns as one piece: forks, bars, light and fender ----
+  const steer=new THREE.Group(); steer.position.set(0,2.0,-2.55); g.add(steer);
+  rig.frontWheels.push(steer);
+  const S=(geo,mat,x,y,z,rx,ry,rz)=>{ const m=new THREE.Mesh(geo,mat);
+    m.position.set(x,y,z); if(rx)m.rotation.x=rx; if(ry)m.rotation.y=ry; if(rz)m.rotation.z=rz; steer.add(m); return m; };
   [[-1],[1]].forEach(([s])=>{
-    B(new THREE.BoxGeometry(.2,.2,1.7), vRim, s*.42,2.0,-2.5, .42); // forks
-    B(new THREE.BoxGeometry(.3,.34,.9), vDark, s*.6,1.1,.9);        // peg + rearset
+    S(new THREE.CylinderGeometry(.13,.13,2.1,8), vRim, s*.4,-.5,-.18, .2);            // fork leg
+    S(new THREE.CylinderGeometry(.17,.17,.8,8), vPanel, s*.4,.32,-.05, .2);           // slider
+    S(new THREE.BoxGeometry(.5,.1,.1), vRim, s*.5,.62,-.02);                          // triple clamp
+    S(new THREE.BoxGeometry(.16,.1,.6), vRim, s*.82,.6,.2, 0,0,-.12);                 // clip-on bar
+    S(new THREE.BoxGeometry(.2,.16,.26), vDark, s*1.02,.58,.42);                      // grip
   });
-  B(new THREE.CylinderGeometry(.26,.3,2.0,10), vRim, 0,1.15,2.4, Math.PI/2);   // single can
-  // rider
-  B(new THREE.BoxGeometry(1.0,1.3,.72), vPanel, 0,3.0,.7, .3);      // torso
-  B(new THREE.BoxGeometry(.36,.12,.5), vA, 0,3.35,.35, .3);
-  B(new THREE.BoxGeometry(.78,.72,.8), vDark, 0,3.85,.1);           // helmet
-  B(new THREE.BoxGeometry(.7,.24,.16), vB, 0,3.88,-.3);             // visor
+  S(body(.9,.5,.28,{tx:.7}), vB, 0,.28,-.42, -.3);                                     // headlight
+  S(new THREE.BoxGeometry(.72,.3,.08), vGlass, 0,.62,-.36, -.5);                       // screen
+  S(body(.85,.28,1.5,{fx:.5,bx:.7}), vPanel, 0,-.62,-.38);                             // front fender
+  S(new THREE.BoxGeometry(.4,.22,.26), vA, 0,.5,.1);                                   // instrument pod
+  addWheel(steer, rig, 0,-1.02,.05, 1.04,.42, 0, 10);                                  // wheel inside the head
+  // ---- frame + bodywork ----
+  B(new THREE.BoxGeometry(.62,.42,4.6), vDark, 0,1.62,.2);                             // spine
   [[-1],[1]].forEach(([s])=>{
-    B(new THREE.BoxGeometry(.3,1.5,.3), vPanel, s*.62,2.9,-.7, -.7);// arms to bars
-    B(new THREE.BoxGeometry(.42,1.2,.5), vDark, s*.52,2.0,1.1, .5); // legs
+    B(body(.26,.62,2.6,{fx:.6,bx:.8}), vRim, s*.52,1.72,-1.0);                         // frame spar
+    B(body(.7,1.0,1.4,{fx:.5,fy:.6,tx:.7}), vPanel, s*.62,1.5,-1.5);                   // side fairing
+    B(new THREE.BoxGeometry(.1,.5,.9), vDark, s*.5,1.15,-1.9);                         // radiator side
+    B(new THREE.BoxGeometry(.34,.36,.9), vDark, s*.62,1.05,.75);                       // rearset + peg
+    B(new THREE.BoxGeometry(.5,.1,.1), vRim, s*.78,.92,.95);
   });
-  addWheel(g,rig,0,1.02,-3.0,1.04,.42,1,10);
-  addWheel(g,rig,0,1.02, 2.9,1.04,.5,0,10);
-  addFlame(g,rig,0,1.15,3.4,.42,3.2);                               // one pipe, one flame
-  addTailGlow(g,rig,2.1,3.3,3.6,2.0);
-  rig.extraLean=0.34;                                               // bikes lean hard
+  B(new THREE.BoxGeometry(.9,.7,.3), vDark, 0,1.25,-2.05);                              // radiator core
+  B(body(1.15,1.0,2.7,{fx:.45,fy:.55,fz:.2,bx:.8,tx:.85}), vPaint, 0,2.0,-.75);         // tank
+  B(new THREE.BoxGeometry(.85,.1,1.7), vA, 0,2.48,-.8);                                 // tank stripe
+  B(new THREE.BoxGeometry(.5,.12,.4), vRim, 0,2.5,-1.85);                               // filler cap
+  B(new THREE.BoxGeometry(1.0,.28,1.6), vDark, 0,2.1,1.05);                             // seat
+  B(body(1.1,.85,2.0,{fx:.85,bx:.3,by:.4,bz:.2,tx:.8}), vPanel, 0,2.16,2.3);            // tail unit
+  B(new THREE.BoxGeometry(.8,.16,.12), vA, 0,2.2,3.2);                                  // tail light
+  B(new THREE.BoxGeometry(.5,.1,.9), vDark, 0,1.62,3.3, .35);                           // rear hugger
+  // swingarm + drive
+  [[-1],[1]].forEach(([s])=>{
+    B(body(.22,.42,2.6,{bx:.7}), vRim, s*.48,1.18,1.95);                                // swingarm
+    B(new THREE.CylinderGeometry(.1,.1,.5,8), vRim, s*.5,1.6,1.2, 0,0,Math.PI/2);       // shock mount
+  });
+  B(new THREE.CylinderGeometry(.42,.42,.1,14), vRim, -.62,1.02,2.9, 0,0,Math.PI/2);     // sprocket
+  B(new THREE.BoxGeometry(.09,.09,2.2), vDark, -.62,1.36,2.0);                          // chain run
+  B(new THREE.CylinderGeometry(.24,.3,2.0,10), vRim, .35,1.2,2.5, Math.PI/2, 0, .06);   // can
+  B(new THREE.BoxGeometry(.3,.26,1.0), vDark, .35,1.42,2.2);                            // heat shield
+  // ---- rider ----
+  B(body(1.05,1.35,.78,{tx:.8,fy:.85}), vPanel, 0,3.05,.5, .34);                        // torso, tucked
+  B(new THREE.BoxGeometry(.4,.12,.5), vA, 0,3.4,.16, .34);                              // chest flash
+  B(new THREE.BoxGeometry(.9,.5,.7), vPanel, 0,3.35,1.05, .2);                          // back / pack
+  B(body(.8,.76,.84,{tx:.82}), vDark, 0,3.92,.0);                                       // helmet
+  B(new THREE.BoxGeometry(.66,.26,.16), vB, 0,3.95,-.38);                               // visor
+  B(new THREE.BoxGeometry(.22,.3,.4), vDark, 0,4.24,.15, .3);                           // helmet spoiler
+  [[-1],[1]].forEach(([s])=>{
+    B(new THREE.BoxGeometry(.3,1.45,.32), vPanel, s*.66,3.0,-.72, -.62);                // arm to bars
+    B(new THREE.BoxGeometry(.26,.24,.24), vDark, s*.86,2.52,-1.45);                     // glove
+    B(new THREE.BoxGeometry(.44,1.1,.5), vPanel, s*.56,2.15,.95, .55);                  // thigh
+    B(new THREE.BoxGeometry(.36,.8,.4), vDark, s*.62,1.35,.95, -.25);                   // shin
+    B(new THREE.BoxGeometry(.34,.26,.6), vDark, s*.66,.98,.95);                         // boot
+  });
+  addWheel(g,rig,0,1.02,2.9,1.04,.52,0,10);
+  addFlame(g,rig,.35,1.2,3.5,.42,3.2);
+  addTailGlow(g,rig,2.2,3.4,3.6,2.0);
+  rig.extraLean=0.34;
 }
 
 function buildHover(g, rig){
+  const Y=1.25;
   const B=(geo,mat,x,y,z,rx,ry,rz)=>{ const m=new THREE.Mesh(geo,mat);
-    m.position.set(x,y,z); if(rx)m.rotation.x=rx; if(ry)m.rotation.y=ry; if(rz)m.rotation.z=rz; g.add(m); return m; };
-  const Y=1.25;                                                     // floats clear of the road
-  B(wedge(3.6,1.0,9.6,.22,.55,.8), vPaint, 0,Y+.9,0);               // dart hull
-  B(wedge(2.6,.5,4.0,.3,.5,.6), vPanel, 0,Y+1.5,-2.4, -.05);
-  B(wedge(2.2,.8,3.0,.4,.55,.7), vGlass, 0,Y+1.72,.2, -.06);        // canopy
-  B(new THREE.BoxGeometry(2.6,.08,.08), vB, 0,Y+1.9,-1.2, -.4);
+    m.position.set(x,y+Y,z); if(rx)m.rotation.x=rx; if(ry)m.rotation.y=ry; if(rz)m.rotation.z=rz; g.add(m); return m; };
+  // dart hull, pinched to a point at the nose and squared at the tail
+  B(body(3.4,1.1,10.0,{fx:.14,fy:.4,fz:1.0,bx:.85,by:.9,tx:.82}), vPaint, 0,.95,0);
+  B(body(2.6,.42,4.6,{fx:.2,fy:.5,fz:.7,tx:.9}), vPanel, 0,1.5,-2.6, -.04);             // spine
+  B(body(1.2,.12,3.4,{fx:.3}), vA, 0,1.72,-2.6, -.04);                                   // dorsal strip
+  B(body(2.2,.82,3.2,{fx:.42,fy:.6,fz:.5,bx:.8,tx:.78}), vGlass, 0,1.72,.3, -.05);       // canopy
+  B(new THREE.BoxGeometry(.16,.5,3.0), vRim, 0,2.02,.3, -.05);                           // canopy spine
+  B(new THREE.BoxGeometry(2.3,.1,.1), vB, 0,1.9,-1.15, -.4);                             // canopy frame
+  B(new THREE.CylinderGeometry(.05,.05,1.6,6), vRim, 0,1.5,-5.1, Math.PI/2);             // nose probe
+  B(new THREE.BoxGeometry(.5,.12,.5), vB, 0,.72,-4.5);                                   // sensor
+  // outriggers + nacelles
   [[-1],[1]].forEach(([s])=>{
-    B(wedge(2.4,.22,4.6,.3,1,1.2), vPanel, s*2.4,Y+.75,.6, 0,0,s*-.09);   // outriggers
-    B(new THREE.BoxGeometry(2.2,.07,.09), s>0?vA:vB, s*2.4,Y+.9,.4);
-    const nac=new THREE.Mesh(new THREE.CylinderGeometry(.82,.68,3.0,12), vPanel);
-    nac.rotation.x=Math.PI/2; nac.position.set(s*2.9,Y+.95,2.6); g.add(nac);
-    const ring=new THREE.Mesh(new THREE.TorusGeometry(.78,.11,8,20), s>0?vA:vB);
-    ring.position.set(s*2.9,Y+.95,4.05); g.add(ring);
-    const lift=new THREE.Mesh(new THREE.TorusGeometry(.95,.16,8,22), vB);
-    lift.rotation.x=-Math.PI/2; lift.position.set(s*2.5,Y-.55,-1.6); g.add(lift);   // lift discs
+    B(body(2.6,.24,5.0,{fx:.25,fz:1.2,bx:.7,tx:.9}), vPanel, s*2.4,.8,.4, 0,0,s*-.09);
+    B(new THREE.BoxGeometry(2.2,.07,.1), s>0?vA:vB, s*2.4,.95,.2);
+    B(new THREE.CylinderGeometry(.86,.7,3.4,12), vPanel, s*2.95,1.0,2.4, Math.PI/2);     // nacelle
+    B(new THREE.CylinderGeometry(.9,.9,.3,12), vDark, s*2.95,1.0,.75, Math.PI/2);        // intake lip
+    B(new THREE.BoxGeometry(.5,.2,1.6), vDark, s*2.95,1.78,2.2);                         // spine vane
+    B(new THREE.TorusGeometry(.8,.12,8,20), s>0?vA:vB, s*2.95,1.0,4.12);                 // exhaust ring
+    B(new THREE.TorusGeometry(.98,.16,8,22), vB, s*2.5,-.55,-1.6, -Math.PI/2);           // lift disc
+    B(new THREE.CylinderGeometry(.5,.72,.4,12), vDark, s*2.5,-.4,-1.6);
+    B(body(.14,1.5,1.8,{fx:.3,by:.5}), vPanel, s*2.95,1.9,3.2, 0,0,s*.2);                // stabiliser fin
+    B(new THREE.BoxGeometry(.1,.9,.1), s>0?vA:vB, s*3.02,2.2,3.3, 0,0,s*.2);
   });
-  B(new THREE.BoxGeometry(3.0,.24,.12), vA, 0,Y+1.05,4.6);
-  B(new THREE.BoxGeometry(2.4,.09,.14), vTailIn, 0,Y+1.05,4.63);
-  [[-.9],[.9]].forEach(([x])=> B(wedge(.8,.14,.9,.3,.6,0), vB, x,Y+.75,-4.6));
-  addFlame(g,rig,-2.9,Y+.95,4.2,.66,4.4);
-  addFlame(g,rig, 2.9,Y+.95,4.2,.66,4.4);
-  addTailGlow(g,rig,Y+1.05,4.8,6.4,2.6);
+  // tail
+  B(new THREE.BoxGeometry(3.0,.26,.12), vA, 0,1.05,4.75);
+  B(new THREE.BoxGeometry(2.4,.1,.14), vTailIn, 0,1.05,4.78);
+  B(body(2.6,.7,.6,{tx:.7}), vPanel, 0,.7,4.6);
+  [[-.9],[.9]].forEach(([x])=> B(body(.9,.16,1.0,{fx:.3,fy:.6}), vB, x,.78,-4.3));       // nose lamps
+  // these attach straight to g, so they need the hover offset applied by hand
+  addFlame(g,rig,-2.95,Y+1.0,4.3,.68,4.6);
+  addFlame(g,rig, 2.95,Y+1.0,4.3,.68,4.6);
+  addTailGlow(g,rig,Y+1.05,4.95,6.4,2.6);
 }
 
 /* ---- registry ---- */
